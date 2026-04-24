@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Punto &amp; Toma</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body class="dash-body">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <a href="/" target="_blank">Punto <span class="amp">&amp;</span> Toma</a>
+    </div>
+
+    <nav class="sidebar__nav">
+      <button class="sidebar__link is-active" data-tab="home">
+        <span class="sidebar__icon">◻</span> Home
+      </button>
+      <button class="sidebar__link" data-tab="weddings">
+        <span class="sidebar__icon">◻</span> Weddings
+      </button>
+      <button class="sidebar__link" data-tab="testimonials">
+        <span class="sidebar__icon">◻</span> Testimonios
+      </button>
+      <button class="sidebar__link" data-tab="inquiries">
+        <span class="sidebar__icon">◻</span> Consultas
+      </button>
+    </nav>
+
+    <button class="sidebar__logout" id="logoutBtn">Cerrar sesión</button>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="dash-main">
+
+    <!-- ══ TAB: HOME ══ -->
+    <section class="tab-panel is-active" id="tab-home">
+      <div class="panel-header">
+        <h2 class="panel-title">Home</h2>
+      </div>
+
+      <!-- ── Sección: Textos ── -->
+      <div class="home-section">
+        <h3 class="home-section__title">Textos — About</h3>
+        <form id="homeTextsForm">
+          <div class="field">
+            <label for="h-headline">Frase principal</label>
+            <textarea id="h-headline" name="about_headline" rows="2"></textarea>
+          </div>
+          <div class="field">
+            <label for="h-body">Texto del About</label>
+            <textarea id="h-body" name="about_body" rows="4"></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Guardar textos</button>
+          </div>
+          <p class="form-msg" id="homeTextsMsg"></p>
+        </form>
+      </div>
+
+      <!-- ── Sección: Imágenes del grid ── -->
+      <div class="home-section">
+        <h3 class="home-section__title">Imágenes del grid</h3>
+        <div class="home-images-grid">
+
+          <!-- Weddings -->
+          <div class="home-img-card">
+            <p class="home-img-card__label">Weddings</p>
+            <div class="home-img-card__preview" id="previewWeddings">
+              <span class="home-img-card__empty">Sin imagen</span>
+            </div>
+            <form id="formImgWeddings" enctype="multipart/form-data">
+              <label class="btn-upload" for="fileWeddings">Subir foto</label>
+              <input type="file" id="fileWeddings" name="image" accept="image/*" style="display:none;" />
+            </form>
+            <button class="btn-danger btn-sm" id="deleteImgWeddings" style="display:none;">
+              Eliminar foto
+            </button>
+            <p class="form-msg" id="msgImgWeddings"></p>
+          </div>
+
+          <!-- Occasions -->
+          <div class="home-img-card">
+            <p class="home-img-card__label">Occasions</p>
+            <div class="home-img-card__preview" id="previewOccasions">
+              <span class="home-img-card__empty">Sin imagen</span>
+            </div>
+            <form id="formImgOccasions" enctype="multipart/form-data">
+              <label class="btn-upload" for="fileOccasions">Subir foto</label>
+              <input type="file" id="fileOccasions" name="image" accept="image/*" style="display:none;" />
+            </form>
+            <button class="btn-danger btn-sm" id="deleteImgOccasions" style="display:none;">
+              Eliminar foto
+            </button>
+            <p class="form-msg" id="msgImgOccasions"></p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Sección: Video del hero ── -->
+      <div class="home-section">
+        <h3 class="home-section__title">Video del Hero</h3>
+        <div class="video-card">
+
+          <!-- Estado: sin video -->
+          <div id="videoEmpty">
+            <p class="video-card__hint">No hay video. Sube un archivo MP4, MOV o WebM (máx. 500 MB).</p>
+          </div>
+
+          <!-- Estado: con video -->
+          <div id="videoPreview" style="display:none;">
+            <video id="videoEl" class="video-thumb" controls muted></video>
+            <p class="video-card__filename" id="videoFilename"></p>
+            <button class="btn-danger btn-sm" id="deleteVideo">Eliminar video</button>
+          </div>
+
+          <!-- Upload -->
+          <form id="formVideo" enctype="multipart/form-data" style="margin-top:16px;">
+            <div class="field">
+              <label for="fileVideo" class="btn-upload">
+                <span id="videoUploadLabel">Subir video</span>
+              </label>
+              <input type="file" id="fileVideo" name="video" accept="video/*" style="display:none;" />
+            </div>
+          </form>
+
+          <!-- Progress bar -->
+          <div class="upload-progress" id="videoProgress" style="display:none;">
+            <div class="upload-progress__bar" id="videoProgressBar"></div>
+          </div>
+
+          <p class="form-msg" id="videoMsg"></p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══ TAB: WEDDINGS ══ -->
+    <section class="tab-panel" id="tab-weddings">
+      <div class="panel-header">
+        <h2 class="panel-title">Weddings</h2>
+        <button class="btn-primary" id="openAddWedding">+ Agregar boda</button>
+      </div>
+
+      <!-- Formulario nueva boda (oculto por default) -->
+      <div class="form-card" id="addWeddingForm" style="display:none;">
+        <h3 class="form-card__title">Nueva boda</h3>
+        <form id="weddingForm" enctype="multipart/form-data">
+          <div class="field">
+            <label for="w-names">Nombres de los novios <span class="req">*</span></label>
+            <input type="text" id="w-names" name="names" placeholder="Ej. Ana & Luis" required />
+          </div>
+          <div class="field">
+            <label for="w-image">Foto principal</label>
+            <input type="file" id="w-image" name="image" accept="image/*" />
+            <p class="field-hint">Opcional — Máx. 15 MB. Se puede agregar después.</p>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Guardar</button>
+            <button type="button" class="btn-ghost" id="cancelAddWedding">Cancelar</button>
+          </div>
+          <p class="form-msg" id="weddingMsg"></p>
+        </form>
+      </div>
+
+      <!-- Lista de bodas -->
+      <div class="entry-list" id="weddingList">
+        <p class="loading-text">Cargando...</p>
+      </div>
+    </section>
+
+    <!-- ══ TAB: TESTIMONIALS ══ -->
+    <section class="tab-panel" id="tab-testimonials">
+      <div class="panel-header">
+        <h2 class="panel-title">Testimonios</h2>
+        <button class="btn-primary" id="openAddTestimonial">+ Agregar testimonio</button>
+      </div>
+
+      <!-- Formulario nuevo testimonio -->
+      <div class="form-card" id="addTestimonialForm" style="display:none;">
+        <h3 class="form-card__title">Nuevo testimonio</h3>
+        <form id="testimonialForm">
+          <div class="field">
+            <label for="t-quote">Testimonio <span class="req">*</span></label>
+            <textarea id="t-quote" name="quote" rows="4" required></textarea>
+          </div>
+          <div class="field">
+            <label for="t-author">Nombre <span class="req">*</span></label>
+            <input type="text" id="t-author" name="author" placeholder="Ej. Cecy" required />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Guardar</button>
+            <button type="button" class="btn-ghost" id="cancelAddTestimonial">Cancelar</button>
+          </div>
+          <p class="form-msg" id="testimonialMsg"></p>
+        </form>
+      </div>
+
+      <!-- Lista de testimonios -->
+      <div class="entry-list" id="testimonialList">
+        <p class="loading-text">Cargando...</p>
+      </div>
+    </section>
+
+    <!-- ══ TAB: INQUIRIES ══ -->
+    <section class="tab-panel" id="tab-inquiries">
+      <div class="panel-header">
+        <h2 class="panel-title">Consultas</h2>
+        <span class="badge" id="inquiryCount">0</span>
+      </div>
+
+      <div class="entry-list" id="inquiryList">
+        <p class="loading-text">Cargando...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Modal editar boda ── -->
+  <div class="modal-overlay" id="editWeddingModal" style="display:none;">
+    <div class="modal">
+      <h3 class="modal__title">Editar boda</h3>
+      <form id="editWeddingForm" enctype="multipart/form-data">
+        <input type="hidden" id="ew-id" name="id" />
+        <div class="field">
+          <label for="ew-names">Nombres de los novios</label>
+          <input type="text" id="ew-names" name="names" required />
+        </div>
+        <div class="field">
+          <label for="ew-image">Cambiar foto</label>
+          <input type="file" id="ew-image" name="image" accept="image/*" />
+        </div>
+        <div class="field" id="ew-current-wrap">
+          <label>Foto actual</label>
+          <img id="ew-current-img" src="" alt="" class="thumb" />
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Guardar cambios</button>
+          <button type="button" class="btn-ghost" id="closeEditWedding">Cancelar</button>
+        </div>
+        <p class="form-msg" id="editWeddingMsg"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Modal editar testimonio ── -->
+  <div class="modal-overlay" id="editTestimonialModal" style="display:none;">
+    <div class="modal">
+      <h3 class="modal__title">Editar testimonio</h3>
+      <form id="editTestimonialForm">
+        <input type="hidden" id="et-id" name="id" />
+        <div class="field">
+          <label for="et-quote">Testimonio</label>
+          <textarea id="et-quote" name="quote" rows="4" required></textarea>
+        </div>
+        <div class="field">
+          <label for="et-author">Nombre</label>
+          <input type="text" id="et-author" name="author" required />
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Guardar cambios</button>
+          <button type="button" class="btn-ghost" id="closeEditTestimonial">Cancelar</button>
+        </div>
+        <p class="form-msg" id="editTestimonialMsg"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Modal ver consulta ── -->
+  <div class="modal-overlay" id="inquiryModal" style="display:none;">
+    <div class="modal modal--wide">
+      <h3 class="modal__title">Detalle de consulta</h3>
+      <div id="inquiryDetail" class="inquiry-detail"></div>
+      <div class="form-actions">
+        <button type="button" class="btn-ghost" id="closeInquiryModal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

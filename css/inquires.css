@@ -1,0 +1,188 @@
+/* ============================================================
+   INQUIRES — Estilos del formulario de contacto
+   ============================================================ */
+
+.inquires-main {
+  min-height: 100vh;
+  background-color: var(--bg-main);
+  padding: 160px 0 100px;
+}
+
+/* Formulario centrado */
+.inquires-form {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* Grupo de campos */
+.form-group {
+  margin-bottom: 36px;
+}
+
+.form-group__label {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+}
+
+/* Fila de dos columnas (First Name + Last Name) */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Campo individual */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-dark);
+  letter-spacing: 0.01em;
+}
+
+.form-field .req {
+  font-size: 12px;
+  color: #999;
+  font-weight: 300;
+}
+
+/* Inputs y textarea */
+.form-field input[type="text"],
+.form-field input[type="email"],
+.form-field input[type="date"],
+.form-field textarea {
+  width: 100%;
+  background-color: transparent;
+  border: 1px solid var(--text-dark);
+  padding: 10px 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--text-dark);
+  outline: none;
+  transition: border-color 0.25s ease;
+  box-sizing: border-box;
+}
+
+.form-field input[type="text"]:focus,
+.form-field input[type="email"]:focus,
+.form-field input[type="date"]:focus,
+.form-field textarea:focus {
+  border-color: var(--text-dark);
+  background-color: transparent;
+}
+
+.form-field textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+/* Date field — ancho limitado como en Squarespace */
+.form-field--date input {
+  max-width: 200px;
+}
+
+/* Select personalizado */
+.select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select-wrap select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: transparent;
+  border: 1px solid var(--text-dark);
+  padding: 10px 32px 10px 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--text-dark);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.25s ease;
+}
+
+.select-wrap select:focus {
+  border-color: var(--text-dark);
+}
+
+.select-arrow {
+  position: absolute;
+  right: 8px;
+  font-size: 18px;
+  color: var(--text-dark);
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* Botón Submit */
+.form-submit {
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+}
+
+.btn-submit {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--text-dark);
+  background: transparent;
+  border: 1px solid var(--text-dark);
+  padding: 14px 60px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.btn-submit:hover {
+  background-color: var(--text-dark);
+  color: #fff;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .inquires-form {
+    padding: 0 24px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-field--date input {
+    max-width: 100%;
+  }
+}
+
+/* ── Feedback del formulario ── */
+.form-feedback {
+  margin-top: 16px;
+  font-size: 13px;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  min-height: 20px;
+}
+
+.form-feedback--success {
+  color: #3A7A5C;
+}
+
+.form-feedback--error {
+  color: #B94040;
+}

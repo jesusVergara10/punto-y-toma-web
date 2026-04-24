@@ -1,0 +1,81 @@
+/* ============================================================
+   WEDDINGS — Portafolio de bodas
+   ============================================================ */
+
+.weddings-main {
+  min-height: 100vh;
+  padding-top: 140px;
+  padding-bottom: 100px;
+}
+
+/* ── Entrada individual de boda ── */
+.wedding-entry {
+  margin-bottom: 80px;
+}
+
+.wedding-entry:last-child {
+  margin-bottom: 0;
+}
+
+/* Nombre de los novios — esquina superior derecha de la foto */
+.wedding-entry__name {
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 2.8vw, 38px);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text-dark);
+  text-align: right;
+  width: 85%;
+  margin: 0 auto;
+  padding: 0 0 10px;
+  letter-spacing: 0.01em;
+}
+
+.wedding-entry__name .amp {
+  font-style: normal;
+}
+
+/* Imagen — 85% del ancho, centrada */
+.wedding-entry__image {
+  width: 85%;
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
+  background-color: #ccc9c2;  /* placeholder — reemplazar con <img> real */
+  display: block;
+  overflow: hidden;
+}
+
+/* Cuando se use con <img> real dentro del div o como etiqueta img directa */
+.wedding-entry__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .weddings-main {
+    padding-top: 120px;
+  }
+
+  .wedding-entry {
+    margin-bottom: 56px;
+  }
+
+  .wedding-entry__name {
+    font-size: 25px;
+    padding: 0 0 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wedding-entry__name {
+    font-size: 23px;
+    padding: 0 0 6px;
+  }
+
+  .wedding-entry {
+    margin-bottom: 40px;
+  }
+}

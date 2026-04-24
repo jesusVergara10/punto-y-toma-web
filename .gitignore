@@ -1,0 +1,19 @@
+# Dependencias
+node_modules/
+
+# Archivos subidos por el usuario (imágenes, videos)
+uploads/
+
+# Datos locales — en producción se usa Postgres
+data/
+
+# Variables de entorno
+.env
+.env.local
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*

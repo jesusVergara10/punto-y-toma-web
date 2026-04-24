@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Punto & Toma — Fotografía de ocasiones especiales: parejas, familias y más." />
+  <title>Occasions — Punto &amp; Toma</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVEGACIÓN
+  ============================================================ -->
+  <nav class="nav" aria-label="Navegación principal">
+
+    <ul class="nav__links">
+      <li><a href="weddings.html">Weddings</a></li>
+      <li><a href="occasions.html">Occasions</a></li>
+      <li><a href="inquires.html">Inquires</a></li>
+    </ul>
+
+    <div class="nav__logo-wrap">
+      <a href="index.html" class="nav__logo">
+        Punto <span class="amp">&amp;</span> Toma
+      </a>
+    </div>
+
+    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+       class="nav__instagram" aria-label="Instagram de Punto y Toma">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <circle cx="12" cy="12" r="4.5"/>
+        <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+      </svg>
+    </a>
+
+    <button class="nav__hamburger" aria-label="Abrir menú" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+
+  <!-- Menú móvil overlay -->
+  <div class="nav__mobile-menu" role="dialog" aria-modal="true" aria-label="Menú de navegación">
+    <button class="nav__mobile-close" aria-label="Cerrar menú">&times;</button>
+    <a href="weddings.html">Weddings</a>
+    <a href="occasions.html">Occasions</a>
+    <a href="inquires.html">Inquires</a>
+  </div>
+
+  <!-- ============================================================
+       HERO DE PÁGINA INTERNA
+  ============================================================ -->
+  <main class="page-hero" aria-label="Occasions">
+    <h1 class="page-hero__title">Occasions</h1>
+    <p class="page-hero__subtitle">Coming soon — Content coming soon.</p>
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer" aria-label="Pie de página">
+    <div class="footer__grid">
+
+      <div class="footer__logo-wrap">
+        <a href="index.html" class="footer__logo">
+          Punto <span class="amp">&amp;</span> Toma
+        </a>
+      </div>
+
+      <nav class="footer__nav" aria-label="Navegación del footer">
+        <ul class="footer__nav-primary">
+          <li><a href="weddings.html">Weddings</a></li>
+          <li><a href="occasions.html">Occasions</a></li>
+          <li><a href="inquires.html">Inquires</a></li>
+        </ul>
+        <ul class="footer__nav-secondary">
+          <li><a href="occasions.html">Couples</a></li>
+          <li><a href="occasions.html">Family</a></li>
+          <li><a href="occasions.html">Bridal Showers</a></li>
+        </ul>
+      </nav>
+
+      <div class="footer__contact">
+        <p class="footer__contact-title">Contact Us</p>
+        <ul class="footer__contact-list">
+          <li>
+            WhatsApp:
+            <a href="https://wa.me/528182873655" target="_blank" rel="noopener">818 287 3655</a>
+          </li>
+          <li>
+            Email:
+            <a href="mailto:hola@puntoytoma.mx">hola@puntoytoma.mx</a>
+          </li>
+          <li>Studio: Baleones 118, Cd. Satélite,<br>64960, MTY, NL</li>
+        </ul>
+        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+           class="footer__instagram" aria-label="Instagram de Punto y Toma">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <circle cx="12" cy="12" r="4.5"/>
+            <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+          </svg>
+          Instagram
+        </a>
+      </div>
+
+    </div>
+
+    <div class="footer__bottom">
+      <p class="footer__copy">
+        &copy; <span id="footer-year"></span> Punto &amp; Toma. Todos los derechos reservados.
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>

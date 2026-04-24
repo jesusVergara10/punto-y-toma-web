@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Punto & Toma — Contáctanos para tu sesión de fotos o video en Monterrey." />
+  <title>Inquires — Punto &amp; Toma</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/inquires.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVEGACIÓN
+  ============================================================ -->
+  <nav class="nav" aria-label="Navegación principal">
+
+    <div class="nav__logo-wrap">
+      <a href="index.html" class="nav__logo">
+        Punto <span class="amp">&amp;</span> Toma
+      </a>
+    </div>
+
+    <ul class="nav__links">
+      <li><a href="weddings.html">Weddings</a></li>
+      <li><a href="inquires.html">Inquires</a></li>
+    </ul>
+
+    <button class="nav__hamburger" aria-label="Abrir menú" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+
+  <!-- Menú móvil overlay -->
+  <div class="nav__mobile-menu" role="dialog" aria-modal="true" aria-label="Menú de navegación">
+    <button class="nav__mobile-close" aria-label="Cerrar menú">&times;</button>
+    <a href="weddings.html">Weddings</a>
+    <a href="inquires.html">Inquires</a>
+  </div>
+
+  <!-- ============================================================
+       FORMULARIO
+  ============================================================ -->
+  <main class="inquires-main">
+    <form class="inquires-form" novalidate>
+
+      <!-- Name -->
+      <div class="form-group">
+        <p class="form-group__label">Name</p>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="first-name">First Name <span class="req">(required)</span></label>
+            <input type="text" id="first-name" name="first_name" autocomplete="given-name" />
+          </div>
+          <div class="form-field">
+            <label for="last-name">Last Name <span class="req">(required)</span></label>
+            <input type="text" id="last-name" name="last_name" autocomplete="family-name" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <div class="form-field">
+          <label for="email">Email <span class="req">(required)</span></label>
+          <input type="email" id="email" name="email" autocomplete="email" />
+        </div>
+      </div>
+
+      <!-- Occasion -->
+      <div class="form-group">
+        <div class="form-field">
+          <label for="occasion">What is the occasion you're hosting? <span class="req">(required)</span></label>
+          <div class="select-wrap">
+            <select id="occasion" name="occasion">
+              <option value="" disabled selected>Select an option</option>
+              <option value="weddings">Weddings</option>
+              <option value="couples">Couples</option>
+              <option value="family">Family</option>
+              <option value="bridal-showers">Bridal Showers</option>
+            </select>
+            <span class="select-arrow">&#8964;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event Date -->
+      <div class="form-group">
+        <div class="form-field form-field--date">
+          <label for="event-date">Event Date <span class="req">(required)</span></label>
+          <input type="date" id="event-date" name="event_date" />
+        </div>
+      </div>
+
+      <!-- Venue -->
+      <div class="form-group">
+        <div class="form-field">
+          <label for="venue">Venue <span class="req">(required)</span></label>
+          <input type="text" id="venue" name="venue" />
+        </div>
+      </div>
+
+      <!-- City -->
+      <div class="form-group">
+        <div class="form-field">
+          <label for="city">City <span class="req">(required)</span></label>
+          <input type="text" id="city" name="city" />
+        </div>
+      </div>
+
+      <!-- Subject -->
+      <div class="form-group">
+        <div class="form-field">
+          <label for="subject">Subject <span class="req">(required)</span></label>
+          <input type="text" id="subject" name="subject" />
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div class="form-group">
+        <div class="form-field">
+          <label for="message">Message <span class="req">(required)</span></label>
+          <textarea id="message" name="message" rows="6"></textarea>
+        </div>
+      </div>
+
+      <!-- How did you hear -->
+      <div class="form-group">
+        <div class="form-field">
+          <label for="source">How did you hear about us? <span class="req">(required)</span></label>
+          <div class="select-wrap">
+            <select id="source" name="source">
+              <option value="" disabled selected>Select an option</option>
+              <option value="instagram">Instagram</option>
+              <option value="google">Google</option>
+              <option value="referencia">Referencia</option>
+            </select>
+            <span class="select-arrow">&#8964;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="form-submit">
+        <button type="submit" class="btn-submit" id="submitBtn">Submit</button>
+        <p class="form-feedback" id="formFeedback"></p>
+      </div>
+
+    </form>
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer" aria-label="Pie de página">
+    <div class="footer__grid">
+
+      <div class="footer__logo-wrap">
+        <a href="index.html" class="footer__logo">
+          Punto <span class="amp">&amp;</span> Toma
+        </a>
+      </div>
+
+      <nav class="footer__nav" aria-label="Navegación del footer">
+        <ul class="footer__nav-primary">
+          <li><a href="weddings.html">Weddings</a></li>
+          <li><a href="inquires.html">Inquires</a></li>
+        </ul>
+      </nav>
+
+      <div class="footer__contact">
+        <p class="footer__contact-title">Contact Us</p>
+        <ul class="footer__contact-list">
+          <li>WhatsApp: <a href="https://wa.me/528182873655" target="_blank" rel="noopener">818 287 3655</a></li>
+          <li>Email: <a href="mailto:hola@puntoytoma.mx">hola@puntoytoma.mx</a></li>
+          <li>Studio: Baleones 118, Cd. Satélite,<br>64960, MTY, NL</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer__bottom">
+      <p class="footer__copy">
+        &copy; <span id="footer-year"></span> Punto &amp; Toma. Todos los derechos reservados.
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    /* ── Enviar formulario a la API ── */
+    document.querySelector('.inquires-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const form     = e.target;
+      const btn      = document.getElementById('submitBtn');
+      const feedback = document.getElementById('formFeedback');
+
+      /* Validación básica */
+      const required = ['first_name', 'email', 'message'];
+      const missing  = required.filter(n => !form[n] || !form[n].value.trim());
+      if (missing.length) {
+        feedback.textContent = 'Por favor completa los campos requeridos.';
+        feedback.className   = 'form-feedback form-feedback--error';
+        return;
+      }
+
+      btn.disabled     = true;
+      btn.textContent  = 'Enviando…';
+      feedback.textContent = '';
+      feedback.className   = 'form-feedback';
+
+      try {
+        const data = {
+          first_name: form.first_name.value.trim(),
+          last_name:  form.last_name  ? form.last_name.value.trim()  : '',
+          email:      form.email.value.trim(),
+          occasion:   form.occasion   ? form.occasion.value           : '',
+          event_date: form.event_date ? form.event_date.value         : '',
+          venue:      form.venue      ? form.venue.value.trim()       : '',
+          city:       form.city       ? form.city.value.trim()        : '',
+          subject:    form.subject    ? form.subject.value.trim()     : '',
+          message:    form.message.value.trim(),
+          source:     form.source     ? form.source.value             : ''
+        };
+
+        const res = await fetch('/api/inquiries', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(data)
+        });
+
+        if (res.ok) {
+          form.reset();
+          feedback.textContent = '¡Mensaje enviado! Nos pondremos en contacto contigo pronto.';
+          feedback.className   = 'form-feedback form-feedback--success';
+          btn.textContent      = 'Submit';
+          btn.disabled         = false;
+        } else {
+          throw new Error('Error del servidor');
+        }
+      } catch (err) {
+        feedback.textContent = 'Hubo un error al enviar. Por favor intenta de nuevo.';
+        feedback.className   = 'form-feedback form-feedback--error';
+        btn.textContent      = 'Submit';
+        btn.disabled         = false;
+      }
+    });
+  </script>
+
+</body>
+</html>
