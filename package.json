@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "test": "jest tests/utils.test.js --forceExit"
   },
   "dependencies": {
     "@vercel/blob": "^0.23.4",
@@ -14,5 +15,9 @@
     "express-session": "^1.17.3",
     "multer": "^2.0.0",
     "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "jest": "^30.3.0",
+    "supertest": "^7.2.2"
   }
 }

@@ -1,39 +1,78 @@
 'use strict';
 
-/* ─── Verificar autenticación ──────────────────────────────── */
+/* ─── Verificar autenticación al cargar el panel ─────────────── */
 (async () => {
   const res = await fetch('/api/auth');
   const { isAdmin } = await res.json();
   if (!isAdmin) window.location.href = '/admin/index.html';
 })();
 
-/* ─── Tabs ─────────────────────────────────────────────────── */
+/* ─── Navegación por tabs ─────────────────────────────────────── */
 const sidebarLinks = document.querySelectorAll('.sidebar__link');
 const tabPanels    = document.querySelectorAll('.tab-panel');
 
 sidebarLinks.forEach(link => {
   link.addEventListener('click', () => {
     const tab = link.dataset.tab;
-
     sidebarLinks.forEach(l => l.classList.remove('is-active'));
     tabPanels.forEach(p => p.classList.remove('is-active'));
-
     link.classList.add('is-active');
     document.getElementById('tab-' + tab).classList.add('is-active');
   });
 });
 
-/* ─── Logout ───────────────────────────────────────────────── */
+/* ─── Logout ───────────────────────────────────────────────────── */
 document.getElementById('logoutBtn').addEventListener('click', async () => {
   await fetch('/api/logout', { method: 'POST' });
   window.location.href = '/admin/index.html';
 });
 
 /* ══════════════════════════════════════════════════════════════
+   UTILIDADES
+══════════════════════════════════════════════════════════════ */
+
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function escapeJs(str) {
+  return String(str || '').replace(/\\/g, '\\\\').replace(/`/g, '\\`');
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('es-MX', {
+    day: '2-digit', month: 'short', year: 'numeric'
+  });
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function showFormMessage(elOrId, text, type = '') {
+  const el = typeof elOrId === 'string' ? document.getElementById(elOrId) : elOrId;
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'form-msg' + (type ? ' ' + type : '');
+}
+
+/* Cerrar cualquier modal al hacer click fuera de su contenido */
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.style.display = 'none';
+  });
+});
+
+/* ══════════════════════════════════════════════════════════════
    WEDDINGS
 ══════════════════════════════════════════════════════════════ */
 async function loadWeddings() {
-  const list = document.getElementById('weddingList');
+  const list     = document.getElementById('weddingList');
   const weddings = await fetch('/api/weddings').then(r => r.json());
 
   if (!weddings.length) {
@@ -52,73 +91,61 @@ async function loadWeddings() {
         <p class="entry-item__meta">${w.image ? 'Con foto' : 'Sin foto'}</p>
       </div>
       <div class="entry-item__actions">
-        <button class="btn-edit" onclick="openEditWedding(${w.id}, '${escHtml(w.names)}', '${w.image || ''}')">Editar</button>
+        <button class="btn-edit" onclick="openEditWedding(${w.id}, '${escapeHtml(w.names)}', '${w.image || ''}')">Editar</button>
         <button class="btn-danger" onclick="deleteWedding(${w.id})">Eliminar</button>
       </div>
     </div>
   `).join('');
 }
 
-/* Mostrar / ocultar formulario de nueva boda */
-document.getElementById('openAddWedding').addEventListener('click', () => {
-  document.getElementById('addWeddingForm').style.display = 'block';
-  document.getElementById('openAddWedding').style.display = 'none';
-});
+function toggleAddWeddingForm(visible) {
+  document.getElementById('addWeddingForm').style.display  = visible ? 'block' : 'none';
+  document.getElementById('openAddWedding').style.display  = visible ? 'none'  : '';
+}
+
+document.getElementById('openAddWedding').addEventListener('click', () => toggleAddWeddingForm(true));
 
 document.getElementById('cancelAddWedding').addEventListener('click', () => {
-  document.getElementById('addWeddingForm').style.display = 'none';
-  document.getElementById('openAddWedding').style.display = '';
+  toggleAddWeddingForm(false);
   document.getElementById('weddingForm').reset();
-  setMsg('weddingMsg', '');
+  showFormMessage('weddingMsg', '');
 });
 
-/* Crear boda */
-document.getElementById('weddingForm').addEventListener('submit', async (e) => {
+document.getElementById('weddingForm').addEventListener('submit', async e => {
   e.preventDefault();
   const form = e.target;
-  const msg  = document.getElementById('weddingMsg');
-  setMsg(msg, '');
+  showFormMessage('weddingMsg', '');
 
   try {
-    const res = await fetch('/api/weddings', {
-      method: 'POST',
-      body: new FormData(form)
-    });
+    const res  = await fetch('/api/weddings', { method: 'POST', body: new FormData(form) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error');
 
-    setMsg(msg, '¡Boda agregada!', 'success');
+    showFormMessage('weddingMsg', '¡Boda agregada!', 'success');
     form.reset();
-    document.getElementById('addWeddingForm').style.display = 'none';
-    document.getElementById('openAddWedding').style.display = '';
+    toggleAddWeddingForm(false);
     loadWeddings();
   } catch (err) {
-    setMsg(msg, err.message, 'error');
+    showFormMessage('weddingMsg', err.message, 'error');
   }
 });
 
-/* Eliminar boda */
-window.deleteWedding = async (id) => {
+window.deleteWedding = async id => {
   if (!confirm('¿Eliminar esta boda?')) return;
   await fetch(`/api/weddings/${id}`, { method: 'DELETE' });
   loadWeddings();
 };
 
-/* Modal editar boda */
 window.openEditWedding = (id, names, image) => {
-  document.getElementById('ew-id').value   = id;
+  document.getElementById('ew-id').value    = id;
   document.getElementById('ew-names').value = names;
 
   const imgEl   = document.getElementById('ew-current-img');
   const imgWrap = document.getElementById('ew-current-wrap');
-  if (image) {
-    imgEl.src = image;
-    imgWrap.style.display = 'block';
-  } else {
-    imgWrap.style.display = 'none';
-  }
+  imgWrap.style.display = image ? 'block' : 'none';
+  if (image) imgEl.src  = image;
 
-  setMsg('editWeddingMsg', '');
+  showFormMessage('editWeddingMsg', '');
   document.getElementById('editWeddingModal').style.display = 'flex';
 };
 
@@ -127,27 +154,24 @@ document.getElementById('closeEditWedding').addEventListener('click', () => {
   document.getElementById('editWeddingForm').reset();
 });
 
-document.getElementById('editWeddingForm').addEventListener('submit', async (e) => {
+document.getElementById('editWeddingForm').addEventListener('submit', async e => {
   e.preventDefault();
   const form = e.target;
   const id   = document.getElementById('ew-id').value;
 
   try {
-    const res = await fetch(`/api/weddings/${id}`, {
-      method: 'PUT',
-      body: new FormData(form)
-    });
+    const res  = await fetch(`/api/weddings/${id}`, { method: 'PUT', body: new FormData(form) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error');
 
-    setMsg('editWeddingMsg', '¡Guardado!', 'success');
+    showFormMessage('editWeddingMsg', '¡Guardado!', 'success');
     setTimeout(() => {
       document.getElementById('editWeddingModal').style.display = 'none';
       form.reset();
       loadWeddings();
     }, 800);
   } catch (err) {
-    setMsg('editWeddingMsg', err.message, 'error');
+    showFormMessage('editWeddingMsg', err.message, 'error');
   }
 });
 
@@ -155,7 +179,7 @@ document.getElementById('editWeddingForm').addEventListener('submit', async (e) 
    TESTIMONIALS
 ══════════════════════════════════════════════════════════════ */
 async function loadTestimonials() {
-  const list = document.getElementById('testimonialList');
+  const list  = document.getElementById('testimonialList');
   const items = await fetch('/api/testimonials').then(r => r.json());
 
   if (!items.length) {
@@ -165,69 +189,62 @@ async function loadTestimonials() {
 
   list.innerHTML = items.map(t => `
     <div class="testimonial-item" data-id="${t.id}">
-      <p class="testimonial-item__quote">"${escHtml(t.quote)}"</p>
-      <p class="testimonial-item__author">— ${escHtml(t.author)}</p>
+      <p class="testimonial-item__quote">"${escapeHtml(t.quote)}"</p>
+      <p class="testimonial-item__author">— ${escapeHtml(t.author)}</p>
       <div class="testimonial-item__actions">
-        <button class="btn-edit" onclick="openEditTestimonial(${t.id}, \`${escJs(t.quote)}\`, '${escJs(t.author)}')">Editar</button>
+        <button class="btn-edit" onclick="openEditTestimonial(${t.id}, \`${escapeJs(t.quote)}\`, '${escapeJs(t.author)}')">Editar</button>
         <button class="btn-danger" onclick="deleteTestimonial(${t.id})">Eliminar</button>
       </div>
     </div>
   `).join('');
 }
 
-/* Mostrar / ocultar formulario */
-document.getElementById('openAddTestimonial').addEventListener('click', () => {
-  document.getElementById('addTestimonialForm').style.display = 'block';
-  document.getElementById('openAddTestimonial').style.display = 'none';
-});
+function toggleAddTestimonialForm(visible) {
+  document.getElementById('addTestimonialForm').style.display  = visible ? 'block' : 'none';
+  document.getElementById('openAddTestimonial').style.display  = visible ? 'none'  : '';
+}
+
+document.getElementById('openAddTestimonial').addEventListener('click', () => toggleAddTestimonialForm(true));
 
 document.getElementById('cancelAddTestimonial').addEventListener('click', () => {
-  document.getElementById('addTestimonialForm').style.display = 'none';
-  document.getElementById('openAddTestimonial').style.display = '';
+  toggleAddTestimonialForm(false);
   document.getElementById('testimonialForm').reset();
-  setMsg('testimonialMsg', '');
+  showFormMessage('testimonialMsg', '');
 });
 
-/* Crear testimonio */
-document.getElementById('testimonialForm').addEventListener('submit', async (e) => {
+document.getElementById('testimonialForm').addEventListener('submit', async e => {
   e.preventDefault();
   const form = e.target;
-  const msg  = document.getElementById('testimonialMsg');
 
   try {
     const res = await fetch('/api/testimonials', {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        quote:  form.quote.value,
-        author: form.author.value
-      })
+      body:    JSON.stringify({ quote: form.quote.value, author: form.author.value })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error');
 
-    setMsg(msg, '¡Testimonio agregado!', 'success');
+    showFormMessage('testimonialMsg', '¡Testimonio agregado!', 'success');
     form.reset();
-    document.getElementById('addTestimonialForm').style.display = 'none';
-    document.getElementById('openAddTestimonial').style.display = '';
+    toggleAddTestimonialForm(false);
     loadTestimonials();
   } catch (err) {
-    setMsg(msg, err.message, 'error');
+    showFormMessage('testimonialMsg', err.message, 'error');
   }
 });
 
-window.deleteTestimonial = async (id) => {
+window.deleteTestimonial = async id => {
   if (!confirm('¿Eliminar este testimonio?')) return;
   await fetch(`/api/testimonials/${id}`, { method: 'DELETE' });
   loadTestimonials();
 };
 
-/* Modal editar testimonio */
 window.openEditTestimonial = (id, quote, author) => {
   document.getElementById('et-id').value     = id;
   document.getElementById('et-quote').value  = quote;
   document.getElementById('et-author').value = author;
-  setMsg('editTestimonialMsg', '');
+  showFormMessage('editTestimonialMsg', '');
   document.getElementById('editTestimonialModal').style.display = 'flex';
 };
 
@@ -235,42 +252,44 @@ document.getElementById('closeEditTestimonial').addEventListener('click', () => 
   document.getElementById('editTestimonialModal').style.display = 'none';
 });
 
-document.getElementById('editTestimonialForm').addEventListener('submit', async (e) => {
+document.getElementById('editTestimonialForm').addEventListener('submit', async e => {
   e.preventDefault();
   const form = e.target;
   const id   = document.getElementById('et-id').value;
 
   try {
     const res = await fetch(`/api/testimonials/${id}`, {
-      method: 'PUT',
+      method:  'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        quote:  form.quote.value,
-        author: form.author.value
-      })
+      body:    JSON.stringify({ quote: form.quote.value, author: form.author.value })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error');
 
-    setMsg('editTestimonialMsg', '¡Guardado!', 'success');
+    showFormMessage('editTestimonialMsg', '¡Guardado!', 'success');
     setTimeout(() => {
       document.getElementById('editTestimonialModal').style.display = 'none';
       loadTestimonials();
     }, 800);
   } catch (err) {
-    setMsg('editTestimonialMsg', err.message, 'error');
+    showFormMessage('editTestimonialMsg', err.message, 'error');
   }
 });
 
 /* ══════════════════════════════════════════════════════════════
    INQUIRIES
 ══════════════════════════════════════════════════════════════ */
+
+/* Cache de consultas para el modal de detalle */
+let inquiriesCache = [];
+
 async function loadInquiries() {
   const list  = document.getElementById('inquiryList');
   const count = document.getElementById('inquiryCount');
   const items = await fetch('/api/inquiries').then(r => r.json());
 
-  count.textContent = items.length;
+  inquiriesCache       = items;
+  count.textContent    = items.length;
 
   if (!items.length) {
     list.innerHTML = '<p class="empty-state">No hay consultas recibidas.</p>';
@@ -280,33 +299,42 @@ async function loadInquiries() {
   list.innerHTML = items.map(i => `
     <div class="inquiry-item" onclick="openInquiry(${i.id})">
       <div class="inquiry-item__header">
-        <span class="inquiry-item__name">${escHtml(i.first_name)} ${escHtml(i.last_name || '')}</span>
-        ${i.occasion ? `<span class="inquiry-item__occasion">${escHtml(i.occasion)}</span>` : ''}
+        <span class="inquiry-item__name">${escapeHtml(i.first_name)} ${escapeHtml(i.last_name || '')}</span>
+        ${i.occasion ? `<span class="inquiry-item__occasion">${escapeHtml(i.occasion)}</span>` : ''}
         <span class="inquiry-item__date-chip">${formatDate(i.created_at)}</span>
       </div>
-      <p class="inquiry-item__preview">${escHtml(i.email)} — ${escHtml(i.message || '').substring(0, 80)}…</p>
+      <p class="inquiry-item__preview">${escapeHtml(i.email)} — ${escapeHtml(i.message || '').substring(0, 80)}…</p>
     </div>
   `).join('');
-
-  // Guardar datos para el modal
-  window._inquiries = items;
 }
 
-window.openInquiry = (id) => {
-  const i = window._inquiries.find(x => x.id === id);
-  if (!i) return;
+function buildInquiryField(label, value) {
+  return `
+    <div class="inquiry-field">
+      <span class="inquiry-field__label">${label}</span>
+      <span class="inquiry-field__value">${escapeHtml(value || '—')}</span>
+    </div>
+  `;
+}
+
+window.openInquiry = id => {
+  const inquiry = inquiriesCache.find(x => x.id === id);
+  if (!inquiry) return;
 
   document.getElementById('inquiryDetail').innerHTML = `
-    <div class="inquiry-field"><span class="inquiry-field__label">Nombre</span><span class="inquiry-field__value">${escHtml(i.first_name)} ${escHtml(i.last_name || '')}</span></div>
-    <div class="inquiry-field"><span class="inquiry-field__label">Email</span><span class="inquiry-field__value">${escHtml(i.email)}</span></div>
-    <div class="inquiry-field"><span class="inquiry-field__label">Ocasión</span><span class="inquiry-field__value">${escHtml(i.occasion || '—')}</span></div>
-    <div class="inquiry-field"><span class="inquiry-field__label">Fecha del evento</span><span class="inquiry-field__value">${escHtml(i.event_date || '—')}</span></div>
-    <div class="inquiry-field"><span class="inquiry-field__label">Venue</span><span class="inquiry-field__value">${escHtml(i.venue || '—')}</span></div>
-    <div class="inquiry-field"><span class="inquiry-field__label">Ciudad</span><span class="inquiry-field__value">${escHtml(i.city || '—')}</span></div>
-    <div class="inquiry-field"><span class="inquiry-field__label">Asunto</span><span class="inquiry-field__value">${escHtml(i.subject || '—')}</span></div>
-    <div class="inquiry-field"><span class="inquiry-field__label">Cómo nos conoció</span><span class="inquiry-field__value">${escHtml(i.source || '—')}</span></div>
-    <div class="inquiry-field inquiry-field--full"><span class="inquiry-field__label">Mensaje</span><span class="inquiry-field__value">${escHtml(i.message || '')}</span></div>
-    <div class="inquiry-field"><span class="inquiry-field__label">Recibida</span><span class="inquiry-field__value">${formatDate(i.created_at)}</span></div>
+    ${buildInquiryField('Nombre',          `${inquiry.first_name} ${inquiry.last_name || ''}`)}
+    ${buildInquiryField('Email',           inquiry.email)}
+    ${buildInquiryField('Ocasión',         inquiry.occasion)}
+    ${buildInquiryField('Fecha del evento',inquiry.event_date)}
+    ${buildInquiryField('Venue',           inquiry.venue)}
+    ${buildInquiryField('Ciudad',          inquiry.city)}
+    ${buildInquiryField('Asunto',          inquiry.subject)}
+    ${buildInquiryField('Cómo nos conoció',inquiry.source)}
+    <div class="inquiry-field inquiry-field--full">
+      <span class="inquiry-field__label">Mensaje</span>
+      <span class="inquiry-field__value">${escapeHtml(inquiry.message || '')}</span>
+    </div>
+    ${buildInquiryField('Recibida', formatDate(inquiry.created_at))}
   `;
 
   document.getElementById('inquiryModal').style.display = 'flex';
@@ -317,61 +345,22 @@ document.getElementById('closeInquiryModal').addEventListener('click', () => {
 });
 
 /* ══════════════════════════════════════════════════════════════
-   UTILIDADES
-══════════════════════════════════════════════════════════════ */
-function escHtml(str) {
-  return String(str || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function escJs(str) {
-  return String(str || '').replace(/`/g, '\\`').replace(/\\/g, '\\\\');
-}
-
-function formatDate(iso) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
-}
-
-function setMsg(elOrId, text, type = '') {
-  const el = typeof elOrId === 'string' ? document.getElementById(elOrId) : elOrId;
-  if (!el) return;
-  el.textContent = text;
-  el.className = 'form-msg' + (type ? ' ' + type : '');
-}
-
-/* Cerrar modales al click fuera */
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.style.display = 'none';
-  });
-});
-
-/* ══════════════════════════════════════════════════════════════
    HOME
 ══════════════════════════════════════════════════════════════ */
 async function loadHome() {
   const home = await fetch('/api/home').then(r => r.json());
 
-  /* Textos */
   if (home.about_headline) document.getElementById('h-headline').value = home.about_headline;
   if (home.about_body)     document.getElementById('h-body').value     = home.about_body;
 
-  /* Imágenes del grid */
-  applyGridImage('weddings',  home.grid_image_weddings);
-  applyGridImage('occasions', home.grid_image_occasions);
-
-  /* Video */
+  applyGridImagePreview('weddings',  home.grid_image_weddings);
+  applyGridImagePreview('occasions', home.grid_image_occasions);
   applyVideoPreview(home.hero_video);
 }
 
-function applyGridImage(slot, url) {
-  const preview   = document.getElementById(`preview${cap(slot)}`);
-  const deleteBtn = document.getElementById(`deleteImg${cap(slot)}`);
+function applyGridImagePreview(slot, url) {
+  const preview   = document.getElementById(`preview${capitalize(slot)}`);
+  const deleteBtn = document.getElementById(`deleteImg${capitalize(slot)}`);
   if (!preview) return;
 
   if (url) {
@@ -384,76 +373,73 @@ function applyGridImage(slot, url) {
 }
 
 function applyVideoPreview(url) {
-  const empty    = document.getElementById('videoEmpty');
-  const preview  = document.getElementById('videoPreview');
-  const videoEl  = document.getElementById('videoEl');
-  const filename = document.getElementById('videoFilename');
-  const label    = document.getElementById('videoUploadLabel');
+  const emptyState      = document.getElementById('videoEmpty');
+  const previewWrap     = document.getElementById('videoPreview');
+  const videoEl         = document.getElementById('videoEl');
+  const filenameEl      = document.getElementById('videoFilename');
+  const uploadLabelEl   = document.getElementById('videoUploadLabel');
 
   if (url) {
-    empty.style.display   = 'none';
-    preview.style.display = 'block';
+    emptyState.style.display  = 'none';
+    previewWrap.style.display = 'block';
     videoEl.src = url;
-    if (filename) filename.textContent = url.split('/').pop();
-    if (label)    label.textContent    = 'Cambiar video';
+    if (filenameEl)    filenameEl.textContent    = url.split('/').pop();
+    if (uploadLabelEl) uploadLabelEl.textContent = 'Cambiar video';
   } else {
-    empty.style.display   = 'block';
-    preview.style.display = 'none';
+    emptyState.style.display  = 'block';
+    previewWrap.style.display = 'none';
     videoEl.src = '';
-    if (label) label.textContent = 'Subir video';
+    if (uploadLabelEl) uploadLabelEl.textContent = 'Subir video';
   }
 }
 
-function cap(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
-
-/* Guardar textos */
-document.getElementById('homeTextsForm').addEventListener('submit', async (e) => {
+/* Guardar textos del about */
+document.getElementById('homeTextsForm').addEventListener('submit', async e => {
   e.preventDefault();
   const form = e.target;
-  const msg  = document.getElementById('homeTextsMsg');
-  setMsg(msg, '');
+  showFormMessage('homeTextsMsg', '');
 
   try {
     const res = await fetch('/api/home/texts', {
       method:  'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      body:    JSON.stringify({
         about_headline: form.about_headline.value,
         about_body:     form.about_body.value
       })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error');
-    setMsg(msg, '¡Textos guardados!', 'success');
+    showFormMessage('homeTextsMsg', '¡Textos guardados!', 'success');
   } catch (err) {
-    setMsg(msg, err.message, 'error');
+    showFormMessage('homeTextsMsg', err.message, 'error');
   }
 });
 
-/* Subir imágenes del grid */
+/* Subir imagen del grid (auto-upload al seleccionar archivo) */
 ['weddings', 'occasions'].forEach(slot => {
-  const input     = document.getElementById(`file${cap(slot)}`);
-  const deleteBtn = document.getElementById(`deleteImg${cap(slot)}`);
-  const msgEl     = document.getElementById(`msgImg${cap(slot)}`);
+  const inputEl     = document.getElementById(`file${capitalize(slot)}`);
+  const deleteBtn   = document.getElementById(`deleteImg${capitalize(slot)}`);
+  const msgEl       = document.getElementById(`msgImg${capitalize(slot)}`);
 
-  if (input) {
-    input.addEventListener('change', async () => {
-      if (!input.files[0]) return;
-      setMsg(msgEl, 'Subiendo…');
+  if (inputEl) {
+    inputEl.addEventListener('change', async () => {
+      const file = inputEl.files[0];
+      if (!file) return;
 
-      const form = document.getElementById(`formImg${cap(slot)}`);
-      const fd   = new FormData(form);
-      fd.set('image', input.files[0]);
+      showFormMessage(msgEl, 'Subiendo…');
+      const formData = new FormData();
+      formData.set('image', file);
 
       try {
-        const res  = await fetch(`/api/home/image/${slot}`, { method: 'POST', body: fd });
+        const res  = await fetch(`/api/home/image/${slot}`, { method: 'POST', body: formData });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Error');
-        applyGridImage(slot, data.image);
-        setMsg(msgEl, '¡Imagen guardada!', 'success');
-        input.value = '';
+        applyGridImagePreview(slot, data.image);
+        showFormMessage(msgEl, '¡Imagen guardada!', 'success');
+        inputEl.value = '';
       } catch (err) {
-        setMsg(msgEl, err.message, 'error');
+        showFormMessage(msgEl, err.message, 'error');
       }
     });
   }
@@ -462,72 +448,76 @@ document.getElementById('homeTextsForm').addEventListener('submit', async (e) =>
     deleteBtn.addEventListener('click', async () => {
       if (!confirm(`¿Eliminar la imagen de ${slot}?`)) return;
       await fetch(`/api/home/image/${slot}`, { method: 'DELETE' });
-      applyGridImage(slot, null);
-      setMsg(msgEl, 'Imagen eliminada.', 'success');
+      applyGridImagePreview(slot, null);
+      showFormMessage(msgEl, 'Imagen eliminada.', 'success');
     });
   }
 });
 
-/* Subir video del hero */
-document.getElementById('fileVideo').addEventListener('change', async () => {
-  const input = document.getElementById('fileVideo');
-  const msg   = document.getElementById('videoMsg');
-  const bar   = document.getElementById('videoProgressBar');
-  const prog  = document.getElementById('videoProgress');
+/* Subir video del hero con barra de progreso real */
+async function uploadVideoFile(file) {
+  const msgEl          = document.getElementById('videoMsg');
+  const progressWrapEl = document.getElementById('videoProgress');
+  const progressBarEl  = document.getElementById('videoProgressBar');
 
-  if (!input.files[0]) return;
+  showFormMessage(msgEl, 'Subiendo video, espera un momento…');
+  progressWrapEl.style.display = 'block';
+  progressBarEl.style.width    = '0%';
 
-  setMsg(msg, '');
-  prog.style.display = 'block';
-  bar.style.width    = '0%';
+  const formData = new FormData();
+  formData.append('video', file);
 
-  /* XHR para mostrar progreso real */
-  const fd  = new FormData();
-  fd.append('video', input.files[0]);
+  return new Promise(resolve => {
+    const xhr = new XMLHttpRequest();
 
-  const xhr = new XMLHttpRequest();
-
-  xhr.upload.addEventListener('progress', (e) => {
-    if (e.lengthComputable) {
-      bar.style.width = Math.round((e.loaded / e.total) * 100) + '%';
-    }
-  });
-
-  xhr.addEventListener('load', () => {
-    prog.style.display = 'none';
-    input.value = '';
-    try {
-      const data = JSON.parse(xhr.responseText);
-      if (xhr.status === 200 && data.ok) {
-        applyVideoPreview(data.video);
-        setMsg(msg, '¡Video guardado!', 'success');
-      } else {
-        setMsg(msg, data.error || 'Error al subir.', 'error');
+    xhr.upload.addEventListener('progress', e => {
+      if (e.lengthComputable) {
+        progressBarEl.style.width = Math.round((e.loaded / e.total) * 100) + '%';
       }
-    } catch {
-      setMsg(msg, 'Error al procesar respuesta.', 'error');
-    }
-  });
+    });
 
-  xhr.addEventListener('error', () => {
-    prog.style.display = 'none';
-    setMsg(msg, 'Error de conexión.', 'error');
-  });
+    xhr.addEventListener('load', () => {
+      progressWrapEl.style.display = 'none';
+      try {
+        const data = JSON.parse(xhr.responseText);
+        if (xhr.status === 200 && data.ok) {
+          applyVideoPreview(data.video);
+          showFormMessage(msgEl, '¡Video guardado!', 'success');
+        } else {
+          showFormMessage(msgEl, data.error || 'Error al subir.', 'error');
+        }
+      } catch {
+        showFormMessage(msgEl, 'Error al procesar respuesta.', 'error');
+      }
+      resolve();
+    });
 
-  xhr.open('POST', '/api/home/video');
-  xhr.send(fd);
-  setMsg(msg, 'Subiendo video, espera un momento…');
+    xhr.addEventListener('error', () => {
+      progressWrapEl.style.display = 'none';
+      showFormMessage(msgEl, 'Error de conexión.', 'error');
+      resolve();
+    });
+
+    xhr.open('POST', '/api/home/video');
+    xhr.send(formData);
+  });
+}
+
+document.getElementById('fileVideo').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  await uploadVideoFile(file);
+  e.target.value = '';
 });
 
-/* Eliminar video */
 document.getElementById('deleteVideo').addEventListener('click', async () => {
   if (!confirm('¿Eliminar el video del hero?')) return;
   await fetch('/api/home/video', { method: 'DELETE' });
   applyVideoPreview(null);
-  setMsg(document.getElementById('videoMsg'), 'Video eliminado.', 'success');
+  showFormMessage(document.getElementById('videoMsg'), 'Video eliminado.', 'success');
 });
 
-/* ─── Cargar todo al iniciar ───────────────────────────────── */
+/* ─── Cargar todo al iniciar ───────────────────────────────────── */
 loadHome();
 loadWeddings();
 loadTestimonials();

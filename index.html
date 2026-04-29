@@ -6,7 +6,6 @@
   <meta name="description" content="Punto & Toma — Fotografía y Video de bodas y ocasiones especiales. Betty & Antonio, Monterrey, México." />
   <title>Punto &amp; Toma — Fotografía &amp; Film</title>
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -15,63 +14,38 @@
 </head>
 <body>
 
-  <!-- ============================================================
-       NAVEGACIÓN (fija, empieza transparente sobre el hero)
-  ============================================================ -->
   <nav class="nav" aria-label="Navegación principal">
-
-    <!-- Logo centrado -->
     <div class="nav__logo-wrap">
       <a href="index.html" class="nav__logo">
         Punto <span class="amp">&amp;</span> Toma
       </a>
     </div>
-
-    <!-- Links debajo del logo -->
     <ul class="nav__links">
       <li><a href="weddings.html">Weddings</a></li>
       <li><a href="inquires.html">Inquires</a></li>
     </ul>
-
-    <!-- Hamburger (solo en móvil) -->
     <button class="nav__hamburger" aria-label="Abrir menú" aria-expanded="false">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
     </button>
   </nav>
 
-  <!-- Menú móvil overlay -->
   <div class="nav__mobile-menu" role="dialog" aria-modal="true" aria-label="Menú de navegación">
     <button class="nav__mobile-close" aria-label="Cerrar menú">&times;</button>
     <a href="weddings.html">Weddings</a>
     <a href="inquires.html">Inquires</a>
   </div>
 
-  <!-- ============================================================
-       HERO — Video a pantalla completa
-  ============================================================ -->
   <section class="hero" aria-label="Video de presentación">
-
-    <!-- Placeholder: visible hasta que la API indique que hay video -->
     <div class="hero__placeholder" aria-hidden="true" id="heroPlaceholder">
       [ Video Placeholder ]
     </div>
-
-    <!-- Video: inyectado por JS si /api/home devuelve hero_video -->
     <div id="heroVideoWrap" style="display:none; width:100%; height:100%; position:absolute; inset:0;">
       <video class="hero__video" id="heroVideoEl" autoplay muted loop playsinline
-             style="width:100%;height:100%;object-fit:cover;">
-      </video>
+             style="width:100%;height:100%;object-fit:cover;"></video>
     </div>
-
-    <!-- Overlay oscuro -->
     <div class="hero__overlay" aria-hidden="true"></div>
   </section>
 
-  <!-- ============================================================
-       ABOUT BANNER — Dos columnas de texto
-  ============================================================ -->
   <section class="about" aria-label="Sobre nosotros">
     <div class="about__headline" id="aboutHeadline">
       "We are ready for every new adventure and eager to be part of your love story."
@@ -84,97 +58,49 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       GRID DE CATEGORÍAS — 2×2
-       Fila 1: Texto Weddings | Imagen B&N
-       Fila 2: Imagen B&N    | Texto Occasions
-  ============================================================ -->
   <section class="categories" aria-label="Categorías de trabajo">
-
-    <!-- Fila 1, Columna 1: texto Weddings -->
     <div class="category-cell category-cell--text">
       <span class="category-cell__watermark" aria-hidden="true">Punto &amp; Toma</span>
       <span class="category-cell__label">Weddings</span>
     </div>
-
-    <!-- Fila 1, Columna 2: imagen placeholder -->
     <div class="category-cell category-cell--image" id="gridImgWeddings"
          aria-label="Fotografía de bodas" role="img"></div>
-
-    <!-- Fila 2, Columna 1: imagen placeholder -->
     <div class="category-cell category-cell--image" id="gridImgOccasions"
          aria-label="Fotografía de ocasiones" role="img"></div>
-
-    <!-- Fila 2, Columna 2: frase -->
     <div class="category-cell category-cell--text">
       <span class="category-cell__watermark" aria-hidden="true">Punto &amp; Toma</span>
       <span class="category-cell__label category-cell__label--phrase">Every love story deserves to be beautifully told</span>
     </div>
-
   </section>
 
-  <!-- ============================================================
-       TESTIMONIALES — Fondo olive, carrusel
-  ============================================================ -->
   <section class="testimonials" aria-label="Testimonios de clientes">
-
     <h2 class="testimonials__title">What people say about us.</h2>
-
     <div class="testimonials__carousel">
-
-      <!-- Flecha anterior -->
-      <button class="testimonials__arrow testimonials__arrow--prev" aria-label="Testimonio anterior">
-        &#8592;
-      </button>
-
-      <!-- Track de slides — poblado dinámicamente desde /api/testimonials -->
+      <button class="testimonials__arrow testimonials__arrow--prev" aria-label="Testimonio anterior">&#8592;</button>
       <div class="testimonials__track" id="testimonialsTrack"></div>
-
-      <!-- Flecha siguiente -->
-      <button class="testimonials__arrow testimonials__arrow--next" aria-label="Siguiente testimonio">
-        &#8594;
-      </button>
-
+      <button class="testimonials__arrow testimonials__arrow--next" aria-label="Siguiente testimonio">&#8594;</button>
     </div>
-
-    <!-- Dots indicadores (generados por JS) -->
     <div class="testimonials__dots" aria-label="Indicadores de testimonio"></div>
-
   </section>
 
-  <!-- ============================================================
-       FOOTER
-  ============================================================ -->
   <footer class="footer" aria-label="Pie de página">
     <div class="footer__grid">
-
-      <!-- Col 1: Logo -->
       <div class="footer__logo-wrap">
         <a href="index.html" class="footer__logo">
           Punto <span class="amp">&amp;</span> Toma
         </a>
       </div>
-
-      <!-- Col 2: Navegación -->
       <nav class="footer__nav" aria-label="Navegación del footer">
         <ul class="footer__nav-primary">
           <li><a href="weddings.html">Weddings</a></li>
           <li><a href="inquires.html">Inquires</a></li>
         </ul>
       </nav>
-
-      <!-- Col 3: Contacto -->
       <div class="footer__contact">
         <p class="footer__contact-title">Contact Us</p>
         <ul class="footer__contact-list">
-          <li>
-            WhatsApp:
-            <a href="https://wa.me/528182873655" target="_blank" rel="noopener">818 287 3655</a>
-          </li>
-          <li>
-            Email:
-            <a href="mailto:hola@puntoytoma.mx">hola@puntoytoma.mx</a>
-          </li>
+          <li>WhatsApp: <a href="https://wa.me/528182873655" target="_blank" rel="noopener">818 287 3655</a></li>
+          <li>Email: <a href="mailto:hola@puntoytoma.mx">hola@puntoytoma.mx</a></li>
           <li>Studio: Baleones 118, Cd. Satélite,<br>64960, MTY, NL</li>
         </ul>
         <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
@@ -187,9 +113,7 @@
           Instagram
         </a>
       </div>
-
     </div>
-
     <div class="footer__bottom">
       <p class="footer__copy">
         &copy; <span id="footer-year"></span> Punto &amp; Toma. Todos los derechos reservados.
@@ -197,42 +121,40 @@
     </div>
   </footer>
 
+  <script src="js/utils.js"></script>
   <script src="js/main.js"></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
-    /* ── Cargar datos de Home desde la API ── */
+    function setGridImage(elementId, imageUrl) {
+      const el = document.getElementById(elementId);
+      if (!el || !imageUrl) return;
+      el.style.backgroundImage    = `url('${imageUrl}')`;
+      el.style.backgroundSize     = 'cover';
+      el.style.backgroundPosition = 'center';
+    }
+
+    function renderTestimonialSlide(testimonial) {
+      return `
+        <div class="testimonials__slide">
+          <blockquote>
+            <p class="testimonials__quote">"${escapeHtml(testimonial.quote)}"</p>
+            <footer class="testimonials__author">— ${escapeHtml(testimonial.author)}</footer>
+          </blockquote>
+        </div>
+      `;
+    }
+
     (async () => {
       try {
         const home = await fetch('/api/home').then(r => r.json());
 
-        /* Textos del About */
-        if (home.about_headline) {
-          document.getElementById('aboutHeadline').textContent = home.about_headline;
-        }
-        if (home.about_body) {
-          document.getElementById('aboutBody').textContent = home.about_body;
-        }
+        if (home.about_headline) document.getElementById('aboutHeadline').textContent = home.about_headline;
+        if (home.about_body)     document.getElementById('aboutBody').textContent     = home.about_body;
 
-        /* Imágenes del grid */
-        if (home.grid_image_weddings) {
-          const el = document.getElementById('gridImgWeddings');
-          if (el) {
-            el.style.backgroundImage  = `url('${home.grid_image_weddings}')`;
-            el.style.backgroundSize   = 'cover';
-            el.style.backgroundPosition = 'center';
-          }
-        }
-        if (home.grid_image_occasions) {
-          const el = document.getElementById('gridImgOccasions');
-          if (el) {
-            el.style.backgroundImage  = `url('${home.grid_image_occasions}')`;
-            el.style.backgroundSize   = 'cover';
-            el.style.backgroundPosition = 'center';
-          }
-        }
+        setGridImage('gridImgWeddings',  home.grid_image_weddings);
+        setGridImage('gridImgOccasions', home.grid_image_occasions);
 
-        /* Video del hero */
         if (home.hero_video) {
           const placeholder = document.getElementById('heroPlaceholder');
           const wrap        = document.getElementById('heroVideoWrap');
@@ -246,37 +168,15 @@
             videoEl.load();
           }
         }
-      } catch (e) { /* fallback silencioso — se muestran los defaults del HTML */ }
-    })();
 
-    /* ── Cargar testimonios desde la API y reinicializar carrusel ── */
-    (async () => {
-      const track = document.getElementById('testimonialsTrack');
-      if (!track) return;
-
-      function escHtml(str) {
-        return String(str || '')
-          .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-      }
-
-      try {
-        const items = await fetch('/api/testimonials').then(r => r.json());
-        if (!items.length) return;
-
-        track.innerHTML = items.map(t => `
-          <div class="testimonials__slide">
-            <blockquote>
-              <p class="testimonials__quote">"${escHtml(t.quote)}"</p>
-              <footer class="testimonials__author">— ${escHtml(t.author)}</footer>
-            </blockquote>
-          </div>
-        `).join('');
-
-        /* Reinicializar carrusel con los nuevos slides */
-        if (window.__reinitCarousel) window.__reinitCarousel();
-      } catch (e) {
-        /* Si falla la API, el carrusel queda vacío — sin error visible */
+        const testimonials = await fetch('/api/testimonials').then(r => r.json());
+        const track = document.getElementById('testimonialsTrack');
+        if (track && testimonials.length) {
+          track.innerHTML = testimonials.map(renderTestimonialSlide).join('');
+          if (window.__reinitCarousel) window.__reinitCarousel();
+        }
+      } catch (_) {
+        /* Si la API falla, se muestran los contenidos por defecto del HTML */
       }
     })();
   </script>
