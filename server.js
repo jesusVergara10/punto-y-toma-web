@@ -1,21 +1,20 @@
 'use strict';
 
-const express   = require('express');
-const session   = require('express-session');
-const multer    = require('multer');
-const path      = require('path');
-const { Pool }  = require('pg');
+const express    = require('express');
+const session    = require('express-session');
+const multer     = require('multer');
+const path       = require('path');
+const { Pool }   = require('pg');
 const { put, del } = require('@vercel/blob');
-const pgSession = require('connect-pg-simple')(session);
+const pgSession  = require('connect-pg-simple')(session);
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'puntoytoma2024';
 
-/* ─── Conexión a Postgres ─────────────────────────────────────── */
+/* ─── Pool de Postgres (lazy) ─────────────────────────────────── */
 let pool = null;
-
 function getPool() {
   if (!pool) {
     pool = new Pool({
@@ -26,20 +25,26 @@ function getPool() {
   return pool;
 }
 
-/* ─── Inicialización de base de datos ────────────────────────── */
-let dbInitPromise = null;
+/* ─── Inicialización de tablas y datos iniciales ─────────────── */
+let dbReady = null;
 
-async function createTables(db) {
+async function initDB() {
+  const db = getPool();
+
   await db.query(`
     CREATE TABLE IF NOT EXISTS home_config (
-      id                   INTEGER PRIMARY KEY DEFAULT 1,
-      about_headline       TEXT DEFAULT '"We are ready for every new adventure and eager to be part of your love story."',
-      about_body           TEXT DEFAULT 'We are Betty & Antonio. A photo & Film Duo based in Monterrey, México. We are passionate filmmakers and storytellers. We like to think that there is an indescribable spark in everything we see, live or feel that cannot be put in words, our joyful challenge is to capture it and make you feel it too.',
+      id               INTEGER PRIMARY KEY DEFAULT 1,
+      about_headline   TEXT    DEFAULT '"We are ready for every new adventure and eager to be part of your love story."',
+      about_body       TEXT    DEFAULT 'We are Betty & Antonio. A photo & Film Duo based in Monterrey, México. We are passionate filmmakers and storytellers. We like to think that there is an indescribable spark in everything we see, live or feel that cannot be put in words, our joyful challenge is to capture it and make you feel it too.',
       grid_image_weddings  TEXT,
       grid_image_occasions TEXT,
       hero_video           TEXT
     )
   `);
+
+  await db.query(
+    `INSERT INTO home_config (id) VALUES (1) ON CONFLICT (id) DO NOTHING`
+  );
 
   await db.query(`
     CREATE TABLE IF NOT EXISTS weddings (
@@ -50,12 +55,26 @@ async function createTables(db) {
   `);
 
   await db.query(`
+    INSERT INTO weddings (names)
+    SELECT unnest(ARRAY['Fer & Walter','Sara & Oscar','Pao & Diego'])
+    WHERE NOT EXISTS (SELECT 1 FROM weddings)
+  `);
+
+  await db.query(`
     CREATE TABLE IF NOT EXISTS testimonials (
       id     SERIAL PRIMARY KEY,
       quote  TEXT NOT NULL,
       author TEXT NOT NULL
     )
   `);
+
+  await db.query(`
+    INSERT INTO testimonials (quote, author)
+    SELECT $1, $2 WHERE NOT EXISTS (SELECT 1 FROM testimonials)
+  `, [
+    'Desde el momento en que decidimos confiar en Punto y Toma, sabíamos que habíamos tomado la elección correcta. Nos hicieron sentir cómodos desde el primer instante, con su carisma nos ayudaron a ser nosotros mismos y capturaron la esencia de los momentos más preciados de una manera auténtica y natural. Fueron 100% profesionales en sus entregables y tiempos, sin duda tienen mi recomendación garantizada.',
+    'Cecy'
+  ]);
 
   await db.query(`
     CREATE TABLE IF NOT EXISTS inquiries (
@@ -70,52 +89,26 @@ async function createTables(db) {
   `);
 }
 
-async function seedInitialData(db) {
-  await db.query(
-    `INSERT INTO home_config (id) VALUES (1) ON CONFLICT (id) DO NOTHING`
-  );
-
-  await db.query(`
-    INSERT INTO weddings (names)
-    SELECT unnest(ARRAY['Fer & Walter','Sara & Oscar','Pao & Diego'])
-    WHERE NOT EXISTS (SELECT 1 FROM weddings)
-  `);
-
-  await db.query(`
-    INSERT INTO testimonials (quote, author)
-    SELECT $1, $2 WHERE NOT EXISTS (SELECT 1 FROM testimonials)
-  `, [
-    'Desde el momento en que decidimos confiar en Punto y Toma, sabíamos que habíamos tomado la elección correcta. Nos hicieron sentir cómodos desde el primer instante, con su carisma nos ayudaron a ser nosotros mismos y capturaron la esencia de los momentos más preciados de una manera auténtica y natural. Fueron 100% profesionales en sus entregables y tiempos, sin duda tienen mi recomendación garantizada.',
-    'Cecy'
-  ]);
-}
-
-async function initDB() {
-  const db = getPool();
-  await createTables(db);
-  await seedInitialData(db);
-}
-
-/* ─── Multer middlewares ──────────────────────────────────────── */
-const imageUpload = multer({
+/* ─── Multer — memoria (sin disco) ───────────────────────────── */
+const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 15 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
+  fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) cb(null, true);
     else cb(new Error('Solo se permiten imágenes'));
   }
 });
 
-const videoUpload = multer({
+const uploadVideo = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 500 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
+  fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('video/')) cb(null, true);
     else cb(new Error('Solo se permiten videos'));
   }
 });
 
-/* ─── Middleware general ──────────────────────────────────────── */
+/* ─── Middleware ──────────────────────────────────────────────── */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -133,12 +126,13 @@ app.use(session({
   cookie: { maxAge: 8 * 60 * 60 * 1000 }
 }));
 
+/* Archivos estáticos */
 app.use(express.static(path.join(__dirname)));
 
-/* Inicialización lazy — se ejecuta una sola vez por instancia de servidor */
+/* DB init lazy — se ejecuta una sola vez por instancia */
 app.use(async (req, res, next) => {
-  if (!dbInitPromise) dbInitPromise = initDB();
-  try { await dbInitPromise; next(); } catch (err) {
+  if (!dbReady) dbReady = initDB();
+  try { await dbReady; next(); } catch (err) {
     console.error('DB init error:', err);
     res.status(500).send('Error de base de datos');
   }
@@ -150,8 +144,8 @@ function requireAuth(req, res, next) {
   res.status(401).json({ error: 'No autorizado' });
 }
 
-/* ─── Elimina un blob de forma segura sin romper el flujo ──────── */
-async function safeDeleteBlob(url) {
+/* ─── Helper: borrar blob sin romper si falla ─────────────────── */
+async function safeDelete(url) {
   if (!url) return;
   try { await del(url); } catch (_) {}
 }
@@ -186,7 +180,7 @@ app.get('/api/weddings', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/weddings', requireAuth, imageUpload.single('image'), async (req, res) => {
+app.post('/api/weddings', requireAuth, upload.single('image'), async (req, res) => {
   try {
     const { names } = req.body;
     if (!names?.trim()) return res.status(400).json({ error: 'El nombre es requerido' });
@@ -205,10 +199,10 @@ app.post('/api/weddings', requireAuth, imageUpload.single('image'), async (req, 
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.put('/api/weddings/:id', requireAuth, imageUpload.single('image'), async (req, res) => {
+app.put('/api/weddings/:id', requireAuth, upload.single('image'), async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
-    const db = getPool();
+    const id  = parseInt(req.params.id);
+    const db  = getPool();
     const { rows } = await db.query('SELECT * FROM weddings WHERE id = $1', [id]);
     if (!rows.length) return res.status(404).json({ error: 'No encontrado' });
 
@@ -216,7 +210,7 @@ app.put('/api/weddings/:id', requireAuth, imageUpload.single('image'), async (re
     let imageUrl = rows[0].image;
 
     if (req.file) {
-      await safeDeleteBlob(rows[0].image);
+      await safeDelete(rows[0].image);
       const blob = await put(`weddings/${Date.now()}-${req.file.originalname}`, req.file.buffer, { access: 'public' });
       imageUrl = blob.url;
     }
@@ -233,7 +227,7 @@ app.delete('/api/weddings/:id', requireAuth, async (req, res) => {
     const { rows } = await db.query('SELECT * FROM weddings WHERE id = $1', [id]);
     if (!rows.length) return res.status(404).json({ error: 'No encontrado' });
 
-    await safeDeleteBlob(rows[0].image);
+    await safeDelete(rows[0].image);
     await db.query('DELETE FROM weddings WHERE id = $1', [id]);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -339,20 +333,20 @@ app.put('/api/home/texts', requireAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/home/image/:slot', requireAuth, imageUpload.single('image'), async (req, res) => {
+app.post('/api/home/image/:slot', requireAuth, upload.single('image'), async (req, res) => {
   try {
     const { slot } = req.params;
-    const columnBySlot = { weddings: 'grid_image_weddings', occasions: 'grid_image_occasions' };
-    const column = columnBySlot[slot];
-    if (!column)   return res.status(400).json({ error: 'Slot inválido' });
+    const colMap = { weddings: 'grid_image_weddings', occasions: 'grid_image_occasions' };
+    const col    = colMap[slot];
+    if (!col)      return res.status(400).json({ error: 'Slot inválido' });
     if (!req.file) return res.status(400).json({ error: 'No se recibió imagen' });
 
     const db = getPool();
-    const { rows } = await db.query(`SELECT ${column} FROM home_config WHERE id = 1`);
-    await safeDeleteBlob(rows[0]?.[column]);
+    const { rows } = await db.query(`SELECT ${col} FROM home_config WHERE id = 1`);
+    await safeDelete(rows[0]?.[col]);
 
     const blob = await put(`home/${slot}-${Date.now()}-${req.file.originalname}`, req.file.buffer, { access: 'public' });
-    await db.query(`UPDATE home_config SET ${column} = $1 WHERE id = 1`, [blob.url]);
+    await db.query(`UPDATE home_config SET ${col} = $1 WHERE id = 1`, [blob.url]);
     res.json({ ok: true, image: blob.url });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -360,24 +354,24 @@ app.post('/api/home/image/:slot', requireAuth, imageUpload.single('image'), asyn
 app.delete('/api/home/image/:slot', requireAuth, async (req, res) => {
   try {
     const { slot } = req.params;
-    const columnBySlot = { weddings: 'grid_image_weddings', occasions: 'grid_image_occasions' };
-    const column = columnBySlot[slot];
-    if (!column) return res.status(400).json({ error: 'Slot inválido' });
+    const colMap = { weddings: 'grid_image_weddings', occasions: 'grid_image_occasions' };
+    const col    = colMap[slot];
+    if (!col) return res.status(400).json({ error: 'Slot inválido' });
 
     const db = getPool();
-    const { rows } = await db.query(`SELECT ${column} FROM home_config WHERE id = 1`);
-    await safeDeleteBlob(rows[0]?.[column]);
-    await db.query(`UPDATE home_config SET ${column} = NULL WHERE id = 1`);
+    const { rows } = await db.query(`SELECT ${col} FROM home_config WHERE id = 1`);
+    await safeDelete(rows[0]?.[col]);
+    await db.query(`UPDATE home_config SET ${col} = NULL WHERE id = 1`);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/home/video', requireAuth, videoUpload.single('video'), async (req, res) => {
+app.post('/api/home/video', requireAuth, uploadVideo.single('video'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No se recibió video' });
     const db = getPool();
     const { rows } = await db.query('SELECT hero_video FROM home_config WHERE id = 1');
-    await safeDeleteBlob(rows[0]?.hero_video);
+    await safeDelete(rows[0]?.hero_video);
 
     const blob = await put(`home/hero-${Date.now()}-${req.file.originalname}`, req.file.buffer, { access: 'public' });
     await db.query('UPDATE home_config SET hero_video = $1 WHERE id = 1', [blob.url]);
@@ -389,13 +383,13 @@ app.delete('/api/home/video', requireAuth, async (req, res) => {
   try {
     const db = getPool();
     const { rows } = await db.query('SELECT hero_video FROM home_config WHERE id = 1');
-    await safeDeleteBlob(rows[0]?.hero_video);
+    await safeDelete(rows[0]?.hero_video);
     await db.query('UPDATE home_config SET hero_video = NULL WHERE id = 1');
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-/* ─── Servidor local ──────────────────────────────────────────── */
+/* ─── Iniciar servidor (solo local) ──────────────────────────── */
 if (require.main === module) {
   initDB().then(() => {
     app.listen(PORT, () => {
