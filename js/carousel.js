@@ -108,28 +108,46 @@ class PhotoCarousel {
   /* ── Eventos ─────────────────────────────────────────────────── */
 
   _bindEvents() {
-    /* Cursor personalizado */
-    this.section.addEventListener('mousemove', e => {
-      const rect    = this.section.getBoundingClientRect();
-      const isLeft  = (e.clientX - rect.left) < rect.width / 2;
+    /* Cursor personalizado — solo visible en la franja del 15% de cada orilla */
+    const EDGE_ZONE = 0.15;
 
-      this.cursor.style.display = 'block';
-      this.cursor.style.left    = e.clientX + 'px';
-      this.cursor.style.top     = e.clientY + 'px';
-      this.cursor.textContent   = isLeft ? '← PREVIOUS' : 'NEXT →';
+    this.section.addEventListener('mousemove', e => {
+      const rect  = this.section.getBoundingClientRect();
+      const relX  = e.clientX - rect.left;
+      const edge  = rect.width * EDGE_ZONE;
+
+      if (relX < edge) {
+        this.section.style.cursor = 'none';
+        this.cursor.style.display = 'block';
+        this.cursor.style.left    = e.clientX + 'px';
+        this.cursor.style.top     = e.clientY + 'px';
+        this.cursor.textContent   = '← PREVIOUS';
+      } else if (relX > rect.width - edge) {
+        this.section.style.cursor = 'none';
+        this.cursor.style.display = 'block';
+        this.cursor.style.left    = e.clientX + 'px';
+        this.cursor.style.top     = e.clientY + 'px';
+        this.cursor.textContent   = 'NEXT →';
+      } else {
+        this.section.style.cursor = 'grab';
+        this.cursor.style.display = 'none';
+      }
     });
 
     this.section.addEventListener('mouseleave', () => {
+      this.section.style.cursor = '';
       this.cursor.style.display = 'none';
     });
 
     /* Drag con mouse */
     this.section.addEventListener('mousedown', e => {
-      this.isDragging  = true;
-      this.startX      = e.clientX;
-      this.startTrackX = this.x;
-      this.dragDelta   = 0;
-      this.velocity    = 0;
+      this.isDragging       = true;
+      this.startX           = e.clientX;
+      this.startTrackX      = this.x;
+      this.dragDelta        = 0;
+      this.velocity         = 0;
+      this.section.style.cursor = 'grabbing';
+      this.cursor.style.display = 'none';
       e.preventDefault();
     });
 
