@@ -129,12 +129,17 @@ app.use(session({
 /* Archivos estáticos */
 app.use(express.static(path.join(__dirname)));
 
-/* DB init lazy — se ejecuta una sola vez por instancia */
+/* DB init lazy — se ejecuta una sola vez por instancia.
+   Si la BD está suspendida (Neon free tier) y el primer intento falla,
+   se resetea para que el siguiente request reintente la conexión. */
 app.use(async (req, res, next) => {
-  if (!dbReady) dbReady = initDB();
+  if (!dbReady) {
+    dbReady = initDB();
+    dbReady.catch(() => { dbReady = null; });
+  }
   try { await dbReady; next(); } catch (err) {
     console.error('DB init error:', err);
-    res.status(500).json({ error: 'Error de base de datos', detail: err.message, code: err.code });
+    res.status(500).send('Error de base de datos');
   }
 });
 
