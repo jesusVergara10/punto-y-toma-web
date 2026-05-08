@@ -730,3 +730,40 @@ a { text-decoration: none; color: inherit; }
   color: var(--text);
   line-height: 1.5;
 }
+
+/* ============================================================
+   CARRUSEL — Grid de imágenes en el admin
+   ============================================================ */
+.carousel-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.carousel-admin-item {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-card);
+  aspect-ratio: 3 / 4;
+}
+
+.carousel-admin-item__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.carousel-admin-item__delete {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.carousel-admin-item:hover .carousel-admin-item__delete {
+  opacity: 1;
+}

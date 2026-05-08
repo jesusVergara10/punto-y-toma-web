@@ -517,8 +517,72 @@ document.getElementById('deleteVideo').addEventListener('click', async () => {
   showFormMessage(document.getElementById('videoMsg'), 'Video eliminado.', 'success');
 });
 
+/* ══════════════════════════════════════════════════════════════
+   CAROUSEL
+══════════════════════════════════════════════════════════════ */
+async function loadCarouselImages() {
+  const grid  = document.getElementById('carouselGrid');
+  const items = await fetch('/api/carousel').then(r => r.json());
+
+  if (!items.length) {
+    grid.innerHTML = '<p class="empty-state">No hay fotos en el carrusel.</p>';
+    return;
+  }
+
+  grid.innerHTML = items.map(item => `
+    <div class="carousel-admin-item" data-id="${item.id}">
+      <img src="${escapeHtml(item.image)}" alt="Foto carrusel" class="carousel-admin-item__thumb" />
+      <button class="btn-danger btn-sm carousel-admin-item__delete"
+              onclick="deleteCarouselImage(${item.id})">Eliminar</button>
+    </div>
+  `).join('');
+}
+
+window.deleteCarouselImage = async id => {
+  if (!confirm('¿Eliminar esta foto del carrusel?')) return;
+  const res = await fetch(`/api/carousel/${id}`, { method: 'DELETE' });
+  if (res.ok) {
+    showFormMessage('carouselMsg', 'Foto eliminada.', 'success');
+    loadCarouselImages();
+  } else {
+    showFormMessage('carouselMsg', 'Error al eliminar.', 'error');
+  }
+};
+
+/* Upload: soporta selección múltiple — sube cada archivo secuencialmente */
+document.getElementById('carouselFileInput').addEventListener('change', async e => {
+  const files = [...e.target.files];
+  if (!files.length) return;
+
+  const msgEl = document.getElementById('carouselMsg');
+  showFormMessage(msgEl, `Subiendo ${files.length} foto(s)…`);
+
+  let errors = 0;
+  for (const file of files) {
+    const formData = new FormData();
+    formData.set('image', file);
+    try {
+      const res = await fetch('/api/carousel', { method: 'POST', body: formData });
+      if (!res.ok) errors++;
+    } catch {
+      errors++;
+    }
+  }
+
+  e.target.value = '';
+
+  if (errors === 0) {
+    showFormMessage(msgEl, `¡${files.length} foto(s) agregada(s)!`, 'success');
+  } else {
+    showFormMessage(msgEl, `${files.length - errors} subida(s), ${errors} con error.`, 'error');
+  }
+
+  loadCarouselImages();
+});
+
 /* ─── Cargar todo al iniciar ───────────────────────────────────── */
 loadHome();
+loadCarouselImages();
 loadWeddings();
 loadTestimonials();
 loadInquiries();

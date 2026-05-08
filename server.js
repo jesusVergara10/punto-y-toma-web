@@ -89,6 +89,14 @@ async function initDB() {
       created_at TIMESTAMP DEFAULT NOW()
     )
   `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS carousel_images (
+      id         SERIAL PRIMARY KEY,
+      image      TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
 }
 
 /* ─── Multer — memoria (sin disco) ───────────────────────────── */
@@ -392,6 +400,44 @@ app.delete('/api/home/video', requireAuth, async (req, res) => {
     const { rows } = await db.query('SELECT hero_video FROM home_config WHERE id = 1');
     await safeDelete(rows[0]?.hero_video);
     await db.query('UPDATE home_config SET hero_video = NULL WHERE id = 1');
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+/* ══════════════════════════════════════════════════════════════
+   CAROUSEL
+══════════════════════════════════════════════════════════════ */
+app.get('/api/carousel', async (req, res) => {
+  try {
+    const { rows } = await getPool().query('SELECT * FROM carousel_images ORDER BY id');
+    res.json(rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/carousel', requireAuth, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No se recibió imagen' });
+    const blob = await put(
+      `carousel/${Date.now()}-${req.file.originalname}`,
+      req.file.buffer,
+      { access: 'public' }
+    );
+    const { rows } = await getPool().query(
+      'INSERT INTO carousel_images (image) VALUES ($1) RETURNING id',
+      [blob.url]
+    );
+    res.json({ ok: true, id: rows[0].id, image: blob.url });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/carousel/:id', requireAuth, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const db = getPool();
+    const { rows } = await db.query('SELECT * FROM carousel_images WHERE id = $1', [id]);
+    if (!rows.length) return res.status(404).json({ error: 'No encontrado' });
+    await safeDelete(rows[0].image);
+    await db.query('DELETE FROM carousel_images WHERE id = $1', [id]);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

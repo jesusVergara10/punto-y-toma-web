@@ -23,6 +23,9 @@
       <button class="sidebar__link is-active" data-tab="home">
         <span class="sidebar__icon">◻</span> Home
       </button>
+      <button class="sidebar__link" data-tab="carousel">
+        <span class="sidebar__icon">◻</span> Carrusel
+      </button>
       <button class="sidebar__link" data-tab="weddings">
         <span class="sidebar__icon">◻</span> Weddings
       </button>
@@ -141,6 +144,19 @@
         </div>
       </div>
 
+    </section>
+
+    <!-- ══ TAB: CARRUSEL ══ -->
+    <section class="tab-panel" id="tab-carousel">
+      <div class="panel-header">
+        <h2 class="panel-title">Carrusel de inicio</h2>
+        <label class="btn-primary" for="carouselFileInput" id="carouselUploadBtn">+ Agregar foto</label>
+        <input type="file" id="carouselFileInput" name="image" accept="image/*" style="display:none;" multiple />
+      </div>
+      <p class="form-msg" id="carouselMsg"></p>
+      <div class="carousel-admin-grid" id="carouselGrid">
+        <p class="loading-text">Cargando...</p>
+      </div>
     </section>
 
     <!-- ══ TAB: WEDDINGS ══ -->

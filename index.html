@@ -58,19 +58,9 @@
     </div>
   </section>
 
-  <section class="categories" aria-label="Categorías de trabajo">
-    <div class="category-cell category-cell--text">
-      <span class="category-cell__watermark" aria-hidden="true">Punto &amp; Toma</span>
-      <span class="category-cell__label">Weddings</span>
-    </div>
-    <div class="category-cell category-cell--image" id="gridImgWeddings"
-         aria-label="Fotografía de bodas" role="img"></div>
-    <div class="category-cell category-cell--image" id="gridImgOccasions"
-         aria-label="Fotografía de ocasiones" role="img"></div>
-    <div class="category-cell category-cell--text">
-      <span class="category-cell__watermark" aria-hidden="true">Punto &amp; Toma</span>
-      <span class="category-cell__label category-cell__label--phrase">Every love story deserves to be beautifully told</span>
-    </div>
+  <section class="photo-carousel" id="photoCarousel" aria-label="Galería de fotografías" style="display:none;">
+    <div class="photo-carousel__track" id="carouselTrack"></div>
+    <div class="photo-carousel__cursor" id="carouselCursor" aria-hidden="true"></div>
   </section>
 
   <section class="testimonials" aria-label="Testimonios de clientes">
@@ -122,17 +112,10 @@
   </footer>
 
   <script src="js/utils.js"></script>
+  <script src="js/carousel.js"></script>
   <script src="js/main.js"></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
-
-    function setGridImage(elementId, imageUrl) {
-      const el = document.getElementById(elementId);
-      if (!el || !imageUrl) return;
-      el.style.backgroundImage    = `url('${imageUrl}')`;
-      el.style.backgroundSize     = 'cover';
-      el.style.backgroundPosition = 'center';
-    }
 
     function renderTestimonialSlide(testimonial) {
       return `
@@ -146,14 +129,12 @@
     }
 
     (async () => {
+      /* ── Textos y video del hero ── */
       try {
         const home = await fetch('/api/home').then(r => r.json());
 
         if (home.about_headline) document.getElementById('aboutHeadline').textContent = home.about_headline;
         if (home.about_body)     document.getElementById('aboutBody').textContent     = home.about_body;
-
-        setGridImage('gridImgWeddings',  home.grid_image_weddings);
-        setGridImage('gridImgOccasions', home.grid_image_occasions);
 
         if (home.hero_video) {
           const placeholder = document.getElementById('heroPlaceholder');
@@ -172,6 +153,7 @@
         console.error('[home] Error al cargar datos:', err);
       }
 
+      /* ── Testimonios ── */
       try {
         const testimonials = await fetch('/api/testimonials').then(r => r.json());
         const track = document.getElementById('testimonialsTrack');
@@ -181,6 +163,18 @@
         }
       } catch (err) {
         console.error('[testimonios] Error al cargar datos:', err);
+      }
+
+      /* ── Carrusel de fotografías ── */
+      try {
+        const items   = await fetch('/api/carousel').then(r => r.json());
+        const section = document.getElementById('photoCarousel');
+        if (section && items.length) {
+          section.style.display = 'block';
+          new PhotoCarousel(section, items.map(i => i.image));
+        }
+      } catch (err) {
+        console.error('[carousel] Error al cargar imágenes:', err);
       }
     })();
   </script>

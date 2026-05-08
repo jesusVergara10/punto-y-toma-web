@@ -305,71 +305,62 @@ img {
 }
 
 /* ============================================================
-   GRID DE CATEGORÍAS
+   CARRUSEL DE FOTOGRAFÍAS
    ============================================================ */
-.categories {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 420px 420px;
-  width: 100%;
-}
-
-.category-cell {
+.photo-carousel {
   position: relative;
+  width: 100%;
+  height: 80vh;
   overflow: hidden;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 40px;
-}
-
-/* Celda con color de fondo (texto) */
-.category-cell--text {
   background-color: var(--bg-card);
-  flex-direction: column;
-  justify-content: center;
+  cursor: none;
+}
+
+/* Fila de imágenes que se desplaza horizontalmente */
+.photo-carousel__track {
+  display: flex;
   align-items: center;
-}
-
-/* Celda con imagen/placeholder */
-.category-cell--image {
-  background-color: var(--bg-placeholder);
-}
-
-/* Watermark tenue en celdas de texto */
-.category-cell__watermark {
-  position: absolute;
-  top: 28px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-family: var(--font-serif);
-  font-size: 13px;
-  font-weight: 400;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: rgba(28, 28, 28, 0.12);
+  height: 100%;
+  gap: 20px;
+  padding: 32px 20px;
+  will-change: transform;
   user-select: none;
+  -webkit-user-select: none;
 }
 
-.category-cell__label {
-  font-family: var(--font-serif);
-  font-size: 28px;
-  font-weight: 400;
-  letter-spacing: 0.08em;
-  color: var(--text-dark);
+/* Cada slide ocupa el alto del track y su ancho es proporcional a la imagen */
+.photo-carousel__slide {
+  flex-shrink: 0;
+  height: 88%;
+}
+
+.photo-carousel__slide img {
+  height: 100%;
+  width: auto;
+  display: block;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+}
+
+/* Etiqueta de cursor personalizado (← PREVIOUS / NEXT →) */
+.photo-carousel__cursor {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  transform: translate(-50%, -50%);
+  display: none;
+  background-color: rgba(28, 28, 28, 0.72);
+  color: var(--text-white);
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-}
-
-.category-cell__label--phrase {
-  font-size: 21px;
-  font-style: italic;
-  font-weight: 300;
-  letter-spacing: 0.03em;
-  text-transform: none;
-  text-align: center;
-  padding: 0 28px;
-  line-height: 1.5;
+  padding: 8px 18px;
+  white-space: nowrap;
 }
 
 /* ============================================================
@@ -704,10 +695,6 @@ img {
     padding-right: 0;
   }
 
-  .categories {
-    grid-template-rows: 320px 320px;
-  }
-
   .footer__grid {
     grid-template-columns: 1fr 1fr;
     gap: 32px;
@@ -733,17 +720,6 @@ img {
   .nav__hamburger {
     display: flex;
   }
-
-  .categories {
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, 260px);
-  }
-
-  /* Reordenar para alternar correctamente en 1 columna */
-  .category-cell:nth-child(1) { order: 1; }
-  .category-cell:nth-child(2) { order: 2; }
-  .category-cell:nth-child(3) { order: 3; }
-  .category-cell:nth-child(4) { order: 4; }
 
   .testimonials {
     padding: 72px 24px;
