@@ -134,7 +134,7 @@ app.use(async (req, res, next) => {
   if (!dbReady) dbReady = initDB();
   try { await dbReady; next(); } catch (err) {
     console.error('DB init error:', err);
-    res.status(500).send('Error de base de datos');
+    res.status(500).json({ error: 'Error de base de datos', detail: err.message, code: err.code });
   }
 });
 
