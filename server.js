@@ -17,8 +17,10 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'puntoytoma2024';
 let pool = null;
 function getPool() {
   if (!pool) {
+    /* POSTGRES_URL_NON_POOLING evita pasar por PgBouncer,
+       lo que es necesario para DDL y compatible con Neon serverless. */
     pool = new Pool({
-      connectionString: process.env.POSTGRES_URL,
+      connectionString: process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL,
       ssl: { rejectUnauthorized: false }
     });
   }
@@ -115,7 +117,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
   store: new pgSession({
     conObject: {
-      connectionString: process.env.POSTGRES_URL,
+      connectionString: process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL,
       ssl: { rejectUnauthorized: false }
     },
     createTableIfMissing: true
