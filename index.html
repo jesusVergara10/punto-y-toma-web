@@ -168,15 +168,19 @@
             videoEl.load();
           }
         }
+      } catch (err) {
+        console.error('[home] Error al cargar datos:', err);
+      }
 
+      try {
         const testimonials = await fetch('/api/testimonials').then(r => r.json());
         const track = document.getElementById('testimonialsTrack');
         if (track && testimonials.length) {
           track.innerHTML = testimonials.map(renderTestimonialSlide).join('');
           if (window.__reinitCarousel) window.__reinitCarousel();
         }
-      } catch (_) {
-        /* Si la API falla, se muestran los contenidos por defecto del HTML */
+      } catch (err) {
+        console.error('[testimonios] Error al cargar datos:', err);
       }
     })();
   </script>
