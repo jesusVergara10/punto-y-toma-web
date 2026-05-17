@@ -18,8 +18,28 @@ sidebarLinks.forEach(link => {
     tabPanels.forEach(p => p.classList.remove('is-active'));
     link.classList.add('is-active');
     document.getElementById('tab-' + tab).classList.add('is-active');
+    /* Cierra el sidebar al seleccionar un tab en mobile */
+    if (window.innerWidth <= 768) closeMobileSidebar();
   });
 });
+
+/* ─── Sidebar mobile ──────────────────────────────────────────── */
+const sidebarEl       = document.querySelector('.sidebar');
+const sidebarOverlay  = document.getElementById('sidebarOverlay');
+const sidebarToggleEl = document.getElementById('sidebarToggle');
+
+function openMobileSidebar() {
+  sidebarEl.classList.add('is-open');
+  sidebarOverlay.classList.add('is-visible');
+}
+
+function closeMobileSidebar() {
+  sidebarEl.classList.remove('is-open');
+  sidebarOverlay.classList.remove('is-visible');
+}
+
+sidebarToggleEl.addEventListener('click', openMobileSidebar);
+sidebarOverlay.addEventListener('click', closeMobileSidebar);
 
 /* ─── Logout ───────────────────────────────────────────────────── */
 document.getElementById('logoutBtn').addEventListener('click', async () => {

@@ -786,3 +786,103 @@ a { text-decoration: none; color: inherit; }
   height: 100%;
   border: none;
 }
+
+/* ============================================================
+   RESPONSIVE — Mobile
+   ============================================================ */
+
+/* Top bar — oculto en desktop */
+.dash-topbar { display: none; }
+
+@media (max-width: 768px) {
+
+  /* ── Top bar ── */
+  .dash-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: var(--text);
+    color: #F5F3EF;
+    padding: 0 20px;
+    z-index: 200;
+  }
+
+  .dash-topbar__logo {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 400;
+  }
+
+  .dash-topbar__logo .amp { font-style: italic; }
+
+  .dash-topbar__hamburger {
+    background: none;
+    border: none;
+    color: #F5F3EF;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 6px;
+  }
+
+  /* ── Sidebar — se desliza desde la izquierda ── */
+  .sidebar {
+    left: calc(-1 * var(--sidebar-w));
+    transition: left 0.28s ease;
+    z-index: 300;
+  }
+
+  .sidebar.is-open { left: 0; }
+
+  /* ── Overlay ── */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(28, 28, 28, 0.5);
+    z-index: 250;
+  }
+
+  .sidebar-overlay.is-visible { display: block; }
+
+  /* ── Main content ── */
+  .dash-main {
+    margin-left: 0;
+    padding: 76px 20px 48px;
+  }
+
+  /* ── Panel header ── */
+  .panel-header {
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  /* ── Entry items ── */
+  .entry-item {
+    gap: 12px;
+    padding: 12px 14px;
+    flex-wrap: wrap;
+  }
+
+  .entry-item__actions {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  /* ── Grids de 2 columnas → 1 columna ── */
+  .home-images-grid  { grid-template-columns: 1fr; }
+  .inquiry-detail    { grid-template-columns: 1fr; }
+
+  /* ── Modal ── */
+  .modal-overlay { padding: 12px; }
+  .modal         { padding: 24px 20px; }
+
+  /* ── Secciones con padding grande ── */
+  .form-card    { padding: 20px; }
+  .home-section { padding: 20px; }
+}
