@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js",
+    "dev": "nodemon --env-file=.env server.js",
     "test": "jest tests/utils.test.js --forceExit"
   },
   "dependencies": {
@@ -17,7 +17,8 @@
     "pg": "^8.11.3"
   },
   "devDependencies": {
-    "jest": "^30.3.0",
+    "jest": "^30.4.0",
+    "nodemon": "^3.1.14",
     "supertest": "^7.2.2"
   }
 }
