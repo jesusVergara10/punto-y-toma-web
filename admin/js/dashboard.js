@@ -82,16 +82,13 @@ async function loadWeddings() {
 
   list.innerHTML = weddings.map(w => `
     <div class="entry-item" data-id="${w.id}">
-      ${w.image
-        ? `<img src="${w.image}" alt="${w.names}" class="entry-item__thumb" />`
-        : `<div class="entry-item__thumb--placeholder">Sin foto</div>`
-      }
+      <div class="entry-item__thumb--placeholder">${w.vimeo_url ? '▶' : '—'}</div>
       <div class="entry-item__info">
-        <p class="entry-item__name">${w.names}</p>
-        <p class="entry-item__meta">${w.image ? 'Con foto' : 'Sin foto'}</p>
+        <p class="entry-item__name">${escapeHtml(w.names)}</p>
+        <p class="entry-item__meta">${w.vimeo_url ? 'Con video' : 'Sin video'}</p>
       </div>
       <div class="entry-item__actions">
-        <button class="btn-edit" onclick="openEditWedding(${w.id}, '${escapeHtml(w.names)}', '${w.image || ''}')">Editar</button>
+        <button class="btn-edit" onclick="openEditWedding(${w.id}, '${escapeHtml(w.names)}', '${escapeHtml(w.vimeo_url || '')}')">Editar</button>
         <button class="btn-danger" onclick="deleteWedding(${w.id})">Eliminar</button>
       </div>
     </div>
@@ -117,7 +114,11 @@ document.getElementById('weddingForm').addEventListener('submit', async e => {
   showFormMessage('weddingMsg', '');
 
   try {
-    const res  = await fetch('/api/weddings', { method: 'POST', body: new FormData(form) });
+    const res  = await fetch('/api/weddings', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ names: form.names.value, vimeo_url: form.vimeo_url.value })
+    });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error');
 
@@ -136,15 +137,10 @@ window.deleteWedding = async id => {
   loadWeddings();
 };
 
-window.openEditWedding = (id, names, image) => {
+window.openEditWedding = (id, names, vimeo_url) => {
   document.getElementById('ew-id').value    = id;
   document.getElementById('ew-names').value = names;
-
-  const imgEl   = document.getElementById('ew-current-img');
-  const imgWrap = document.getElementById('ew-current-wrap');
-  imgWrap.style.display = image ? 'block' : 'none';
-  if (image) imgEl.src  = image;
-
+  document.getElementById('ew-vimeo').value = vimeo_url || '';
   showFormMessage('editWeddingMsg', '');
   document.getElementById('editWeddingModal').style.display = 'flex';
 };
@@ -160,7 +156,11 @@ document.getElementById('editWeddingForm').addEventListener('submit', async e =>
   const id   = document.getElementById('ew-id').value;
 
   try {
-    const res  = await fetch(`/api/weddings/${id}`, { method: 'PUT', body: new FormData(form) });
+    const res  = await fetch(`/api/weddings/${id}`, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ names: form.names.value, vimeo_url: form.vimeo_url.value })
+    });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error');
 

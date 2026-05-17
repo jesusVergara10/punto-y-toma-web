@@ -114,14 +114,24 @@
           return;
         }
 
-        main.innerHTML = weddings.map(w => `
-          <article class="wedding-entry">
-            <h2 class="wedding-entry__name">${escHtml(w.names)}</h2>
-            <div class="wedding-entry__image" role="img" aria-label="Fotografía de la boda de ${escHtml(w.names)}">
-              ${w.image ? `<img src="${w.image}" alt="Boda de ${escHtml(w.names)}" />` : ''}
-            </div>
-          </article>
-        `).join('');
+        main.innerHTML = weddings.map(w => {
+          const vimeoId = extractVimeoId(w.vimeo_url);
+          return `
+            <article class="wedding-entry">
+              <h2 class="wedding-entry__name">${escHtml(w.names)}</h2>
+              <div class="wedding-entry__video">
+                ${vimeoId
+                  ? `<iframe
+                       src="https://player.vimeo.com/video/${vimeoId}?title=0&byline=0&portrait=0&dnt=1"
+                       frameborder="0"
+                       allow="autoplay; fullscreen; picture-in-picture"
+                       allowfullscreen></iframe>`
+                  : ''
+                }
+              </div>
+            </article>
+          `;
+        }).join('');
       } catch (e) {
         main.innerHTML = '';
       }
@@ -130,6 +140,12 @@
         return String(str || '')
           .replace(/&/g, '&amp;').replace(/</g, '&lt;')
           .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function extractVimeoId(url) {
+        if (!url) return null;
+        const match = url.match(/vimeo\.com\/(?:.*\/)?(\d+)/);
+        return match ? match[1] : null;
       }
     })();
   </script>

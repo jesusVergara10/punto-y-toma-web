@@ -187,15 +187,15 @@
       <!-- Formulario nueva boda (oculto por default) -->
       <div class="form-card" id="addWeddingForm" style="display:none;">
         <h3 class="form-card__title">Nueva boda</h3>
-        <form id="weddingForm" enctype="multipart/form-data">
+        <form id="weddingForm">
           <div class="field">
             <label for="w-names">Nombres de los novios <span class="req">*</span></label>
             <input type="text" id="w-names" name="names" placeholder="Ej. Ana & Luis" required />
           </div>
           <div class="field">
-            <label for="w-image">Foto principal</label>
-            <input type="file" id="w-image" name="image" accept="image/*" />
-            <p class="field-hint">Opcional — Máx. 15 MB. Se puede agregar después.</p>
+            <label for="w-vimeo">URL de Vimeo</label>
+            <input type="url" id="w-vimeo" name="vimeo_url" placeholder="https://vimeo.com/123456789" />
+            <p class="field-hint">Opcional — Se puede agregar después.</p>
           </div>
           <div class="form-actions">
             <button type="submit" class="btn-primary">Guardar</button>
@@ -262,19 +262,15 @@
   <div class="modal-overlay" id="editWeddingModal" style="display:none;">
     <div class="modal">
       <h3 class="modal__title">Editar boda</h3>
-      <form id="editWeddingForm" enctype="multipart/form-data">
+      <form id="editWeddingForm">
         <input type="hidden" id="ew-id" name="id" />
         <div class="field">
           <label for="ew-names">Nombres de los novios</label>
           <input type="text" id="ew-names" name="names" required />
         </div>
         <div class="field">
-          <label for="ew-image">Cambiar foto</label>
-          <input type="file" id="ew-image" name="image" accept="image/*" />
-        </div>
-        <div class="field" id="ew-current-wrap">
-          <label>Foto actual</label>
-          <img id="ew-current-img" src="" alt="" class="thumb" />
+          <label for="ew-vimeo">URL de Vimeo</label>
+          <input type="url" id="ew-vimeo" name="vimeo_url" placeholder="https://vimeo.com/123456789" />
         </div>
         <div class="form-actions">
           <button type="submit" class="btn-primary">Guardar cambios</button>

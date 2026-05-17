@@ -35,22 +35,24 @@
   font-style: normal;
 }
 
-/* Imagen — 85% del ancho, centrada */
-.wedding-entry__image {
+/* Video embed — 85% del ancho, centrado, responsive 16:9 */
+.wedding-entry__video {
+  position: relative;
   width: 85%;
   margin: 0 auto;
-  aspect-ratio: 16 / 9;
-  background-color: #ccc9c2;  /* placeholder — reemplazar con <img> real */
-  display: block;
+  padding-bottom: calc(85% * 0.5625); /* 16:9 relativo al 85% */
+  height: 0;
   overflow: hidden;
+  background-color: #ccc9c2;
 }
 
-/* Cuando se use con <img> real dentro del div o como etiqueta img directa */
-.wedding-entry__image img {
+.wedding-entry__video iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  display: block;
+  border: none;
 }
 
 /* ── Responsive ── */

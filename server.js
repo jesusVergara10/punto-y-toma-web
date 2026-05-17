@@ -60,6 +60,8 @@ async function initDB() {
     )
   `);
 
+  await db.query(`ALTER TABLE weddings ADD COLUMN IF NOT EXISTS vimeo_url TEXT`);
+
   await db.query(`
     INSERT INTO weddings (names)
     SELECT unnest(ARRAY['Fer & Walter','Sara & Oscar','Pao & Diego'])
@@ -199,43 +201,31 @@ app.get('/api/weddings', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/weddings', requireAuth, upload.single('image'), async (req, res) => {
+app.post('/api/weddings', requireAuth, async (req, res) => {
   try {
-    const { names } = req.body;
+    const { names, vimeo_url } = req.body;
     if (!names?.trim()) return res.status(400).json({ error: 'El nombre es requerido' });
 
-    let imageUrl = null;
-    if (req.file) {
-      const blob = await put(`weddings/${Date.now()}-${req.file.originalname}`, req.file.buffer, { access: 'public' });
-      imageUrl = blob.url;
-    }
-
     const { rows } = await getPool().query(
-      'INSERT INTO weddings (names, image) VALUES ($1, $2) RETURNING id',
-      [names.trim(), imageUrl]
+      'INSERT INTO weddings (names, vimeo_url) VALUES ($1, $2) RETURNING id',
+      [names.trim(), vimeo_url?.trim() || null]
     );
-    res.json({ ok: true, id: rows[0].id, image: imageUrl });
+    res.json({ ok: true, id: rows[0].id });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.put('/api/weddings/:id', requireAuth, upload.single('image'), async (req, res) => {
+app.put('/api/weddings/:id', requireAuth, async (req, res) => {
   try {
-    const id  = parseInt(req.params.id);
-    const db  = getPool();
+    const id = parseInt(req.params.id);
+    const db = getPool();
     const { rows } = await db.query('SELECT * FROM weddings WHERE id = $1', [id]);
     if (!rows.length) return res.status(404).json({ error: 'No encontrado' });
 
-    const names = req.body.names?.trim() || rows[0].names;
-    let imageUrl = rows[0].image;
+    const names     = req.body.names?.trim()     || rows[0].names;
+    const vimeo_url = req.body.vimeo_url?.trim() ?? rows[0].vimeo_url;
 
-    if (req.file) {
-      await safeDelete(rows[0].image);
-      const blob = await put(`weddings/${Date.now()}-${req.file.originalname}`, req.file.buffer, { access: 'public' });
-      imageUrl = blob.url;
-    }
-
-    await db.query('UPDATE weddings SET names=$1, image=$2 WHERE id=$3', [names, imageUrl, id]);
-    res.json({ ok: true, image: imageUrl });
+    await db.query('UPDATE weddings SET names=$1, vimeo_url=$2 WHERE id=$3', [names, vimeo_url, id]);
+    res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
