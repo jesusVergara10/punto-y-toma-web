@@ -48,6 +48,10 @@ async function initDB() {
     `INSERT INTO home_config (id) VALUES (1) ON CONFLICT (id) DO NOTHING`
   );
 
+  /* Columnas añadidas tras el deploy inicial — se crean solo si no existen */
+  await db.query(`ALTER TABLE home_config ADD COLUMN IF NOT EXISTS featured_title     TEXT DEFAULT 'Featured Wedding'`);
+  await db.query(`ALTER TABLE home_config ADD COLUMN IF NOT EXISTS featured_vimeo_url TEXT`);
+
   await db.query(`
     CREATE TABLE IF NOT EXISTS weddings (
       id    SERIAL PRIMARY KEY,
@@ -331,6 +335,20 @@ app.get('/api/home', async (req, res) => {
   try {
     const { rows } = await getPool().query('SELECT * FROM home_config WHERE id = 1');
     res.json(rows[0] || {});
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.put('/api/home/featured', requireAuth, async (req, res) => {
+  try {
+    const { featured_title, featured_vimeo_url } = req.body;
+    await getPool().query(
+      `UPDATE home_config SET
+        featured_title     = $1,
+        featured_vimeo_url = $2
+       WHERE id = 1`,
+      [featured_title?.trim() || null, featured_vimeo_url?.trim() || null]
+    );
+    res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

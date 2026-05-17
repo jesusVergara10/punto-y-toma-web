@@ -305,62 +305,45 @@ img {
 }
 
 /* ============================================================
-   CARRUSEL DE FOTOGRAFÍAS
+   FEATURED WEDDING
    ============================================================ */
-.photo-carousel {
+.featured-wedding {
+  background-color: var(--bg-main);
+  padding: 80px 40px;
+}
+
+.featured-wedding__inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.featured-wedding__title {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dark);
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* Contenedor responsive 16:9 para el iframe de Vimeo */
+.featured-wedding__video {
   position: relative;
   width: 100%;
-  height: 80vh;
+  padding-bottom: 56.25%;
+  height: 0;
   overflow: hidden;
-  background-color: var(--bg-main);
-  cursor: none;
 }
 
-/* Fila de imágenes que se desplaza horizontalmente */
-.photo-carousel__track {
-  display: flex;
-  align-items: center;
+.featured-wedding__video iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
-  gap: 20px;
-  padding: 32px 20px;
-  will-change: transform;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-/* Cada slide ocupa el alto del track y su ancho es proporcional a la imagen */
-.photo-carousel__slide {
-  flex-shrink: 0;
-  height: 88%;
-}
-
-.photo-carousel__slide img {
-  height: 100%;
-  width: auto;
-  display: block;
-  object-fit: cover;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
-  -webkit-user-select: none;
-}
-
-/* Etiqueta de cursor personalizado (← PREVIOUS / NEXT →) */
-.photo-carousel__cursor {
-  position: fixed;
-  pointer-events: none;
-  z-index: 1000;
-  transform: translate(-50%, -50%);
-  display: none;
-  background-color: rgba(28, 28, 28, 0.72);
-  color: var(--text-white);
-  font-family: var(--font-sans);
-  font-size: 0.6rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  padding: 8px 18px;
-  white-space: nowrap;
+  border: none;
 }
 
 /* ============================================================

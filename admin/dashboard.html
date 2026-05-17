@@ -24,7 +24,7 @@
         <span class="sidebar__icon">◻</span> Home
       </button>
       <button class="sidebar__link" data-tab="carousel">
-        <span class="sidebar__icon">◻</span> Carrusel
+        <span class="sidebar__icon">◻</span> Featured
       </button>
       <button class="sidebar__link" data-tab="weddings">
         <span class="sidebar__icon">◻</span> Weddings
@@ -146,16 +146,34 @@
 
     </section>
 
-    <!-- ══ TAB: CARRUSEL ══ -->
+    <!-- ══ TAB: FEATURED WEDDING ══ -->
     <section class="tab-panel" id="tab-carousel">
       <div class="panel-header">
-        <h2 class="panel-title">Carrusel de inicio</h2>
-        <label class="btn-primary" for="carouselFileInput" id="carouselUploadBtn">+ Agregar foto</label>
-        <input type="file" id="carouselFileInput" name="image" accept="image/*" style="display:none;" multiple />
+        <h2 class="panel-title">Featured Wedding</h2>
       </div>
-      <p class="form-msg" id="carouselMsg"></p>
-      <div class="carousel-admin-grid" id="carouselGrid">
-        <p class="loading-text">Cargando...</p>
+
+      <div class="home-section">
+        <form id="featuredForm">
+          <div class="field">
+            <label for="f-title">Título</label>
+            <input type="text" id="f-title" name="featured_title" placeholder="Featured Wedding" />
+          </div>
+          <div class="field">
+            <label for="f-vimeo">URL de Vimeo</label>
+            <input type="url" id="f-vimeo" name="featured_vimeo_url" placeholder="https://vimeo.com/123456789" />
+            <p class="field-hint">Pega la URL del video de Vimeo y se generará el embed automáticamente.</p>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Guardar</button>
+          </div>
+          <p class="form-msg" id="featuredMsg"></p>
+        </form>
+
+        <!-- Vista previa del video actual -->
+        <div id="featuredPreview" style="display:none; margin-top:32px;">
+          <h3 class="home-section__title" style="margin-bottom:16px;">Vista previa</h3>
+          <div class="featured-admin-video" id="featuredAdminVideo"></div>
+        </div>
       </div>
     </section>
 

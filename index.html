@@ -58,9 +58,11 @@
     </div>
   </section>
 
-  <section class="photo-carousel" id="photoCarousel" aria-label="Galería de fotografías" style="display:none;">
-    <div class="photo-carousel__track" id="carouselTrack"></div>
-    <div class="photo-carousel__cursor" id="carouselCursor" aria-hidden="true"></div>
+  <section class="featured-wedding" id="featuredWedding" aria-label="Boda destacada" style="display:none;">
+    <div class="featured-wedding__inner">
+      <h2 class="featured-wedding__title" id="featuredTitle">Featured Wedding</h2>
+      <div class="featured-wedding__video" id="featuredVideoWrap"></div>
+    </div>
   </section>
 
   <section class="testimonials" aria-label="Testimonios de clientes">
@@ -112,7 +114,6 @@
   </footer>
 
   <script src="js/utils.js"></script>
-  <script src="js/carousel.js"></script>
   <script src="js/main.js"></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
@@ -129,7 +130,14 @@
     }
 
     (async () => {
-      /* ── Textos y video del hero ── */
+      /* Extrae el ID numérico de cualquier URL de Vimeo */
+      function extractVimeoId(url) {
+        if (!url) return null;
+        const match = url.match(/vimeo\.com\/(?:.*\/)?(\d+)/);
+        return match ? match[1] : null;
+      }
+
+      /* ── Textos, video del hero y featured wedding ── */
       try {
         const home = await fetch('/api/home').then(r => r.json());
 
@@ -149,6 +157,20 @@
             videoEl.load();
           }
         }
+
+        const vimeoId = extractVimeoId(home.featured_vimeo_url);
+        if (vimeoId) {
+          const section  = document.getElementById('featuredWedding');
+          const titleEl  = document.getElementById('featuredTitle');
+          const videoWrap = document.getElementById('featuredVideoWrap');
+          if (home.featured_title) titleEl.textContent = home.featured_title;
+          videoWrap.innerHTML = `<iframe
+            src="https://player.vimeo.com/video/${vimeoId}?title=0&byline=0&portrait=0&dnt=1"
+            frameborder="0"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowfullscreen></iframe>`;
+          section.style.display = 'block';
+        }
       } catch (err) {
         console.error('[home] Error al cargar datos:', err);
       }
@@ -163,18 +185,6 @@
         }
       } catch (err) {
         console.error('[testimonios] Error al cargar datos:', err);
-      }
-
-      /* ── Carrusel de fotografías ── */
-      try {
-        const items   = await fetch('/api/carousel').then(r => r.json());
-        const section = document.getElementById('photoCarousel');
-        if (section && items.length) {
-          section.style.display = 'block';
-          new PhotoCarousel(section, items.map(i => i.image));
-        }
-      } catch (err) {
-        console.error('[carousel] Error al cargar imágenes:', err);
       }
     })();
   </script>

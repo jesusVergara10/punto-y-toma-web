@@ -518,71 +518,64 @@ document.getElementById('deleteVideo').addEventListener('click', async () => {
 });
 
 /* ══════════════════════════════════════════════════════════════
-   CAROUSEL
+   FEATURED WEDDING
 ══════════════════════════════════════════════════════════════ */
-async function loadCarouselImages() {
-  const grid  = document.getElementById('carouselGrid');
-  const items = await fetch('/api/carousel').then(r => r.json());
-
-  if (!items.length) {
-    grid.innerHTML = '<p class="empty-state">No hay fotos en el carrusel.</p>';
-    return;
-  }
-
-  grid.innerHTML = items.map(item => `
-    <div class="carousel-admin-item" data-id="${item.id}">
-      <img src="${escapeHtml(item.image)}" alt="Foto carrusel" class="carousel-admin-item__thumb" />
-      <button class="btn-danger btn-sm carousel-admin-item__delete"
-              onclick="deleteCarouselImage(${item.id})">Eliminar</button>
-    </div>
-  `).join('');
+function extractVimeoId(url) {
+  if (!url) return null;
+  const match = url.match(/vimeo\.com\/(?:.*\/)?(\d+)/);
+  return match ? match[1] : null;
 }
 
-window.deleteCarouselImage = async id => {
-  if (!confirm('¿Eliminar esta foto del carrusel?')) return;
-  const res = await fetch(`/api/carousel/${id}`, { method: 'DELETE' });
-  if (res.ok) {
-    showFormMessage('carouselMsg', 'Foto eliminada.', 'success');
-    loadCarouselImages();
+function applyFeaturedPreview(url) {
+  const preview  = document.getElementById('featuredPreview');
+  const videoEl  = document.getElementById('featuredAdminVideo');
+  const id       = extractVimeoId(url);
+
+  if (id) {
+    videoEl.innerHTML = `<iframe
+      src="https://player.vimeo.com/video/${id}?title=0&byline=0&portrait=0&dnt=1"
+      frameborder="0"
+      allow="autoplay; fullscreen; picture-in-picture"
+      allowfullscreen></iframe>`;
+    preview.style.display = 'block';
   } else {
-    showFormMessage('carouselMsg', 'Error al eliminar.', 'error');
+    preview.style.display = 'none';
   }
-};
+}
 
-/* Upload: soporta selección múltiple — sube cada archivo secuencialmente */
-document.getElementById('carouselFileInput').addEventListener('change', async e => {
-  const files = [...e.target.files];
-  if (!files.length) return;
+async function loadFeatured() {
+  const home = await fetch('/api/home').then(r => r.json());
+  if (home.featured_title)     document.getElementById('f-title').value = home.featured_title;
+  if (home.featured_vimeo_url) document.getElementById('f-vimeo').value = home.featured_vimeo_url;
+  applyFeaturedPreview(home.featured_vimeo_url);
+}
 
-  const msgEl = document.getElementById('carouselMsg');
-  showFormMessage(msgEl, `Subiendo ${files.length} foto(s)…`);
+document.getElementById('featuredForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const form = e.target;
+  showFormMessage('featuredMsg', '');
 
-  let errors = 0;
-  for (const file of files) {
-    const formData = new FormData();
-    formData.set('image', file);
-    try {
-      const res = await fetch('/api/carousel', { method: 'POST', body: formData });
-      if (!res.ok) errors++;
-    } catch {
-      errors++;
-    }
+  try {
+    const res = await fetch('/api/home/featured', {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        featured_title:     form.featured_title.value,
+        featured_vimeo_url: form.featured_vimeo_url.value
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error');
+    showFormMessage('featuredMsg', '¡Guardado!', 'success');
+    applyFeaturedPreview(form.featured_vimeo_url.value);
+  } catch (err) {
+    showFormMessage('featuredMsg', err.message, 'error');
   }
-
-  e.target.value = '';
-
-  if (errors === 0) {
-    showFormMessage(msgEl, `¡${files.length} foto(s) agregada(s)!`, 'success');
-  } else {
-    showFormMessage(msgEl, `${files.length - errors} subida(s), ${errors} con error.`, 'error');
-  }
-
-  loadCarouselImages();
 });
 
 /* ─── Cargar todo al iniciar ───────────────────────────────────── */
 loadHome();
-loadCarouselImages();
+loadFeatured();
 loadWeddings();
 loadTestimonials();
 loadInquiries();
